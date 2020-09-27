@@ -1,0 +1,33 @@
+{
+    "name": "InputMaster",
+    "maps": [
+        {
+            "name": "LevelMenu",
+            "id": "3cd795d8-91f3-48f4-8c4e-02493bbcd85f",
+            "actions": [
+                {
+                    "name": "Exit",
+                    "type": "Button",
+                    "id": "1fe43ab4-5599-4b8e-b1fc-4a2d140e1993",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "0658e8e9-4c68-4ed6-8068-bba6c6353a87",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Exit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
