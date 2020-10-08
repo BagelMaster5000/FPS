@@ -11,6 +11,6 @@ public class MainMenuController : MonoBehaviour
         highScoreTextView.text = "Highscore: " + PlayerPrefs.GetInt("HighScore");
 
         if (startingSong != null)
-            AudioManager.PlaySongHelper(startingSong);
+            AudioManager.PlaySongHelper(startingSong, 0.25f);
     }
 }

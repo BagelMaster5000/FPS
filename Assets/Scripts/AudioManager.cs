@@ -7,17 +7,19 @@ public static class AudioManager
     /* Creates a game object and makes it play music
      * @param clip music track to play
      */
-    public static void PlaySongHelper(AudioClip clip)
+    public static void PlaySongHelper(AudioClip clip, float volume)
     {
         if (instance == null)
         {
             instance = new GameObject("Music");
             instance.AddComponent<AudioSource>();
-            instance.GetComponent<AudioSource>().clip = clip;
-            instance.GetComponent<AudioSource>().loop = true;
-            instance.GetComponent<AudioSource>().playOnAwake = false;
+            AudioSource tempAudioSource = instance.GetComponent<AudioSource>();
+            tempAudioSource.volume = volume;
+            tempAudioSource.clip = clip;
+            tempAudioSource.loop = true;
+            tempAudioSource.playOnAwake = false;
             MonoBehaviour.DontDestroyOnLoad(instance);
-            instance.GetComponent<AudioSource>().Play();
+            tempAudioSource.Play();
         }
     }
 }

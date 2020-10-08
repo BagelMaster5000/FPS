@@ -6,7 +6,7 @@
             "id": "3cd795d8-91f3-48f4-8c4e-02493bbcd85f",
             "actions": [
                 {
-                    "name": "Exit",
+                    "name": "Pause",
                     "type": "Button",
                     "id": "1fe43ab4-5599-4b8e-b1fc-4a2d140e1993",
                     "expectedControlType": "Button",
@@ -22,7 +22,18 @@
                     "interactions": "Hold",
                     "processors": "",
                     "groups": "",
-                    "action": "Exit",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b4529bf5-2a87-4386-88e6-c1fbd54b79ac",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

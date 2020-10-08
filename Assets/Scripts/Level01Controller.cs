@@ -1,12 +1,13 @@
 ﻿using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Level01Controller : MonoBehaviour
 {
     public TextMeshProUGUI curScoreTextView;
 
-    int curScore;
+    public static int curScore;
+    public Slider healthBar;
     const int SCORE_INCREASE_AMT = 100;
 
     InputMaster inputs;
@@ -14,13 +15,19 @@ public class Level01Controller : MonoBehaviour
     // Setting up inputs
     private void Awake()
     {
+        healthBar.value = 1;
+
         inputs = new InputMaster();
-        inputs.LevelMenu.Exit.performed += ctx => ExitLevel();
         inputs.Game.IncreaseScore.performed += ctx => IncreaseScore(SCORE_INCREASE_AMT);
-        inputs.Enable();
+        inputs.Game.IncreaseScore.Enable();
     }
 
-    private void OnDisable() { inputs.Disable(); }
+    private void OnDisable() { inputs.Game.IncreaseScore.Disable(); }
+
+    private void Start()
+    {
+        Camera.main.enabled = false;
+    }
 
     void IncreaseScore(int scoreIncrease)
     {
@@ -28,12 +35,8 @@ public class Level01Controller : MonoBehaviour
         curScoreTextView.text = "Score: " + curScore;
     }
 
-    private void ExitLevel()
+    public void RefreshHealthBar(float health)
     {
-        int highScore = PlayerPrefs.GetInt("HighScore");
-        if (curScore > highScore) // Setting new highscore if necessary
-            PlayerPrefs.SetInt("HighScore", curScore);
-        Debug.Log("Current high score is " + PlayerPrefs.GetInt("HighScore"));
-        SceneManager.LoadScene("MainMenu"); // Exiting scene
+        healthBar.value = health;
     }
 }

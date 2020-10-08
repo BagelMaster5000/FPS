@@ -19,7 +19,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
             ""id"": ""3cd795d8-91f3-48f4-8c4e-02493bbcd85f"",
             ""actions"": [
                 {
-                    ""name"": ""Exit"",
+                    ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""1fe43ab4-5599-4b8e-b1fc-4a2d140e1993"",
                     ""expectedControlType"": ""Button"",
@@ -35,7 +35,18 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""interactions"": ""Hold"",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Exit"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b4529bf5-2a87-4386-88e6-c1fbd54b79ac"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -250,7 +261,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
 }");
         // LevelMenu
         m_LevelMenu = asset.FindActionMap("LevelMenu", throwIfNotFound: true);
-        m_LevelMenu_Exit = m_LevelMenu.FindAction("Exit", throwIfNotFound: true);
+        m_LevelMenu_Pause = m_LevelMenu.FindAction("Pause", throwIfNotFound: true);
         // Game
         m_Game = asset.FindActionMap("Game", throwIfNotFound: true);
         m_Game_IncreaseScore = m_Game.FindAction("Increase Score", throwIfNotFound: true);
@@ -310,12 +321,12 @@ public class @InputMaster : IInputActionCollection, IDisposable
     // LevelMenu
     private readonly InputActionMap m_LevelMenu;
     private ILevelMenuActions m_LevelMenuActionsCallbackInterface;
-    private readonly InputAction m_LevelMenu_Exit;
+    private readonly InputAction m_LevelMenu_Pause;
     public struct LevelMenuActions
     {
         private @InputMaster m_Wrapper;
         public LevelMenuActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Exit => m_Wrapper.m_LevelMenu_Exit;
+        public InputAction @Pause => m_Wrapper.m_LevelMenu_Pause;
         public InputActionMap Get() { return m_Wrapper.m_LevelMenu; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -325,16 +336,16 @@ public class @InputMaster : IInputActionCollection, IDisposable
         {
             if (m_Wrapper.m_LevelMenuActionsCallbackInterface != null)
             {
-                @Exit.started -= m_Wrapper.m_LevelMenuActionsCallbackInterface.OnExit;
-                @Exit.performed -= m_Wrapper.m_LevelMenuActionsCallbackInterface.OnExit;
-                @Exit.canceled -= m_Wrapper.m_LevelMenuActionsCallbackInterface.OnExit;
+                @Pause.started -= m_Wrapper.m_LevelMenuActionsCallbackInterface.OnPause;
+                @Pause.performed -= m_Wrapper.m_LevelMenuActionsCallbackInterface.OnPause;
+                @Pause.canceled -= m_Wrapper.m_LevelMenuActionsCallbackInterface.OnPause;
             }
             m_Wrapper.m_LevelMenuActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @Exit.started += instance.OnExit;
-                @Exit.performed += instance.OnExit;
-                @Exit.canceled += instance.OnExit;
+                @Pause.started += instance.OnPause;
+                @Pause.performed += instance.OnPause;
+                @Pause.canceled += instance.OnPause;
             }
         }
     }
@@ -430,7 +441,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     public GameActions @Game => new GameActions(this);
     public interface ILevelMenuActions
     {
-        void OnExit(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
     public interface IGameActions
     {
