@@ -32,7 +32,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""name"": """",
                     ""id"": ""0658e8e9-4c68-4ed6-8068-bba6c6353a87"",
                     ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Pause"",

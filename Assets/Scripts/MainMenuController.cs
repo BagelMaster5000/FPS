@@ -13,4 +13,15 @@ public class MainMenuController : MonoBehaviour
         if (startingSong != null)
             AudioManager.PlaySongHelper(startingSong, 0.25f);
     }
+
+    public void ResetSaveData()
+    {
+        PlayerPrefs.SetInt("HighScore", 0);
+        highScoreTextView.text = "Highscore: " + PlayerPrefs.GetInt("HighScore");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

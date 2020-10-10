@@ -26,6 +26,7 @@ public class Level01Controller : MonoBehaviour
 
     private void Start()
     {
+        curScore = 0;
         Camera.main.enabled = false;
     }
 
