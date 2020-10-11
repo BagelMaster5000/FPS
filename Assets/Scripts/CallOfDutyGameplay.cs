@@ -67,13 +67,13 @@ public class CallOfDutyGameplay : MonoBehaviour
             return;
 
         // Updating continuous animations
-        gunHolderAnimator.SetBool("Scoping", scoping && !sprinting && !reloading);
+        gunHolderAnimator.SetBool("Scoping", gunAnimator != null && scoping && !sprinting && !reloading);
         gunHolderAnimator.SetBool("Running", sprinting && !reloading && playerMover.IsMoving() && !playerMover.IsMovingBackwards() && playerMover.IsGrounded());
 
         // Updating speed
         if (sprinting && !playerMover.IsMovingBackwards() && !reloading)
             playerMover.SetSpeed(startPlayerSpeed * SPRINT_SPEED_MULTIPLIER);
-        else if (scoping && !reloading)
+        else if (gunAnimator != null && scoping && !reloading)
             playerMover.SetSpeed(startPlayerSpeed * SCOPE_SPEED_MULTIPLIER);
         else if (reloading)
             playerMover.SetSpeed(startPlayerSpeed * RELOAD_SPEED_MULTIPLIER);
@@ -83,7 +83,7 @@ public class CallOfDutyGameplay : MonoBehaviour
         // Updating FOV
         if (sprinting && !reloading && playerMover.IsMoving() && !playerMover.IsMovingBackwards() && playerMover.IsGrounded())
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, SPRINT_FOV, 1 / FOV_LERP_FACTOR);
-        else if (scoping && !reloading)
+        else if (gunAnimator != null && scoping && !reloading)
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, SCOPE_FOV, 1 / FOV_LERP_FACTOR);
         else
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, STANDARD_FOV, 1 / FOV_LERP_FACTOR);
@@ -92,7 +92,7 @@ public class CallOfDutyGameplay : MonoBehaviour
     // Fires gun
     void Fire()
     {
-        if (paused)
+        if (paused || gunAnimator == null)
             return;
         if (!reloading && !sprinting)
             gunAnimator.SetTrigger("Fire");
@@ -101,7 +101,7 @@ public class CallOfDutyGameplay : MonoBehaviour
     // Called when reload button pressed. Calls reload delay coroutine
     void Reload()
     {
-        if (paused)
+        if (paused || gunAnimator == null)
             return;
         if (!reloading)
         {
@@ -129,9 +129,16 @@ public class CallOfDutyGameplay : MonoBehaviour
     // Updates length of reload animation for current gun
     public void RefreshReloadClipTime()
     {
+        if (gunAnimator == null)
+            return;
         AnimationClip[] clips = gunAnimator.runtimeAnimatorController.animationClips;
         foreach (AnimationClip clip in clips)
             if (clip.name == "Reload")
                 reloadLength = clip.length - RELOAD_CUTOFF;
     }
+
+    /* Sets gunAnimator variable. Called when gun is changed.
+     * @param gunAnimatorToSet variable to update gunAnimator with
+     */
+    public void SetGunAnimator(Animator gunAnimatorToSet) { gunAnimator = gunAnimatorToSet; }
 }
