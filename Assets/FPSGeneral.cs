@@ -8,14 +8,14 @@ using UnityEngine.UI;
 public class FPSGeneral : MonoBehaviour
 {
     InputMaster inputs;
-    PlayerMovement playerMover;
     FPSMovementManager playerMovementManager;
     FPSAnimationManager playerAnimationManager;
 
     float health = 100;
     public Slider healthBar;
 
-    int gunType = -1;
+    public Gun[] allGuns;
+    int curGunType = -1;
 
     // Reloading
     bool reloading = false;
@@ -26,13 +26,22 @@ public class FPSGeneral : MonoBehaviour
 
     private void Awake()
     {
+        playerAnimationManager = GetComponent<FPSAnimationManager>();
+        playerMovementManager = GetComponent<FPSMovementManager>();
+        playerMovementManager.SetPlayerBaseMovement(GetComponent<PlayerMovement>());
+        playerAnimationManager.SetPlayerBaseMovement(GetComponent<PlayerMovement>());
+
         inputs = new InputMaster();
         inputs.Game.Reload.performed += ctx => StartCoroutine(Reload());
         inputs.Game.Fire.performed += ctx => Fire();
         inputs.Game.Sprinting.started += ctx => playerMovementManager.SetSprinting(true);
+        inputs.Game.Sprinting.started += ctx => playerAnimationManager.SetSprinting(true);
         inputs.Game.Sprinting.canceled += ctx => playerMovementManager.SetSprinting(false);
+        inputs.Game.Sprinting.canceled += ctx => playerAnimationManager.SetSprinting(false);
         inputs.Game.Scope.started += ctx => playerMovementManager.SetScoping(true);
+        inputs.Game.Scope.started += ctx => playerAnimationManager.SetScoping(true);
         inputs.Game.Scope.canceled += ctx => playerMovementManager.SetScoping(false);
+        inputs.Game.Scope.canceled += ctx => playerAnimationManager.SetScoping(false);
         inputs.Game.Reload.Enable();
         inputs.Game.Fire.Enable();
         inputs.Game.Sprinting.Enable();
@@ -47,10 +56,14 @@ public class FPSGeneral : MonoBehaviour
         inputs.Game.Scope.Disable();
     }
 
+    private void Start()
+    {
+        ObtainGun(0);
+    }
 
     void Fire()
     {
-        if (paused || gunType == -1) return;
+        if (paused || curGunType == -1) return;
 
         if (!reloading && !playerMovementManager.GetSprinting())
             playerAnimationManager.PlayAnimation("Fire");
@@ -58,34 +71,47 @@ public class FPSGeneral : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        Debug.Log("Player Took Damage");
         health -= damage;
         healthBar.value = health / 100.0f;
         if (health <= 0)
             FindObjectOfType<PauseMenu>().ExitLevel();
     }
 
-    void GetGun(int gunType)
+    void ObtainGun(int gunType)
     {
-
+        SetCurGunType(gunType);
     }
 
-    public void SetReloadLength(float newReloadLength) { reloadLength = newReloadLength; }
-    public int GetGunType() { return gunType; }
+    #region Mutators and Accessors
 
-    public void SetGunType(int setGunType) { gunType = setGunType; }
+    public void SetReloadLength(float newReloadLength) { reloadLength = newReloadLength; }
+    public void SetCurGunType(int setGunType)
+    {
+        if (setGunType < -1 || setGunType >= allGuns.Length) return;
+
+        curGunType = setGunType;
+        playerAnimationManager.SetGunAnimator(allGuns[curGunType].gunAnimator);
+        for (int n = 0; n < allGuns.Length; n++)
+            allGuns[n].gunAnimator.gameObject.SetActive(n == curGunType);
+    }
+
+    public int GetCurGunType() { return curGunType; }
+
+    #endregion
 
     // Waits until reload is finished before allowing other actions
     IEnumerator Reload()
     {
-        if (paused || gunType == -1) yield break;
+        if (paused || curGunType == -1) yield break;
 
         if (!reloading)
         {
-            reloading = true;
+            playerMovementManager.SetReloading(true);
+            playerAnimationManager.SetReloading(true);
             playerAnimationManager.PlayAnimation("Reload");
             yield return new WaitForSecondsRealtime(reloadLength);
-            reloading = false;
+            playerMovementManager.SetReloading(false);
+            playerAnimationManager.SetReloading(false);
         }
     }
 }

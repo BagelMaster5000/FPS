@@ -1,14 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class Gun : MonoBehaviour
+[Serializable]
+public class Gun
 {
-    public ParticleSystem muzzleFlash;
-    public AudioSource gunShot;
-    public AudioSource reloadSound;
-
-    public void Flash() { muzzleFlash.Play(); }
-
-    public void Shot() { gunShot.Play(); }
-
-    public void Reload() { reloadSound.Play(); }
+    [HideInInspector] public string Name = "Gun";
+    public GunType gunType;
+    //public GunEffects gunEffects;
+    public Animator gunAnimator;
 }

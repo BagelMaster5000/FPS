@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿/*
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMovement))]
@@ -135,3 +136,4 @@ public class CallOfDutyGameplay : MonoBehaviour
                 reloadLength = clip.length - RELOAD_CUTOFF;
     }
 }
+*/

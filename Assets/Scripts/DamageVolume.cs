@@ -4,6 +4,8 @@ public class DamageVolume : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        FindObjectOfType<CallOfDutyGameplay>().TakeDamage(0.2f);
+        if (other.GetComponent<FPSGeneral>() == null) return;
+
+        other.GetComponent<FPSGeneral>().TakeDamage(23);
     }
 }

@@ -55,7 +55,6 @@ public class PauseMenu : MonoBehaviour
     // Toggles pauses of objects
     void SetObjectPause()
     {
-        CallOfDutyGameplay.paused = gamePaused;
         Look.paused = gamePaused;
     }
 

@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+using UnityEngine;
 
 public class WeaponController : MonoBehaviour
 {
-    public GunObject[] allGuns;
+    public GunType[] allGuns;
     public CallOfDutyGameplay player;
 
     private GameObject currentGun;
@@ -23,3 +24,4 @@ public class WeaponController : MonoBehaviour
         player.SetGunAnimator(currentGun.GetComponent<Animator>());
     }
 }
+*/

@@ -1,41 +1,28 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(FPSMovementAdditions))]
 [RequireComponent(typeof(PlayerMovement))]
 public class FPSAnimationManager : MonoBehaviour
 {
-    PlayerMovement playerMover;
-    FPSMovementAdditions fpsMovement;
+    PlayerMovement playerBaseMovement;
 
     public Animator gunHolderAnimator;
-    public Animator gunAnimator;
+    Animator gunAnimator;
 
     // Animation Variables
-    bool sprinting;
-    bool scoping;
-    bool reloading;
+    bool sprinting, scoping, reloading;
 
     // Pausing
     public static bool paused;
 
-    private void Awake()
-    {
-        playerMover = GetComponent<PlayerMovement>();
-        fpsMovement = GetComponent<FPSMovementAdditions>();
-    }
-
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (paused)
-            return;
+        if (paused) return;
 
         // Updating continuous animations
-        sprinting = fpsMovement.IsSprinting();
-        scoping = fpsMovement.IsScoping();
-        reloading = fpsMovement.IsReloading();
         gunHolderAnimator.SetBool("Scoping", gunAnimator != null && scoping && !sprinting && !reloading);
-        gunHolderAnimator.SetBool("Running", sprinting && !reloading && playerMover.IsMoving() &&!playerMover.IsMovingBackwards() && playerMover.IsGrounded());
+        gunHolderAnimator.SetBool("Running", sprinting && !reloading &&
+            playerBaseMovement.GetMoving() && !playerBaseMovement.GetMovingBackwards() && playerBaseMovement.GetGrounded());
     }
 
     public void PlayAnimation(string animationToPlay)
@@ -44,8 +31,13 @@ public class FPSAnimationManager : MonoBehaviour
             gunAnimator.SetTrigger(animationToPlay);
     }
 
-    /* Sets gunAnimator variable. Called when gun is changed.
-     * @param gunAnimatorToSet variable to update gunAnimator with
-     */
+    #region Mutators and Accessors
+
+    public void SetSprinting(bool setSprinting) { sprinting = setSprinting; }
+    public void SetScoping(bool setScoping) { scoping = setScoping; }
+    public void SetReloading(bool setReloading) { reloading = setReloading; }
     public void SetGunAnimator(Animator gunAnimatorToSet) { gunAnimator = gunAnimatorToSet; }
+    public void SetPlayerBaseMovement(PlayerMovement setPlayerBaseMovement) { playerBaseMovement = setPlayerBaseMovement; }
+
+    #endregion
 }

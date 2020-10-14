@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    //CharacterController controller;
     Rigidbody rb;
     InputMaster inputs;
 
@@ -16,8 +15,6 @@ public class PlayerMovement : MonoBehaviour
     bool moving;
     bool movingBackwards;
 
-    //Vector3 velocity;
-
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
@@ -25,7 +22,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
-        //controller = GetComponent<CharacterController>();
         rb = GetComponent<Rigidbody>();
         inputs = new InputMaster();
         inputs.Game.Moving.performed += ctx => RefreshPlayerSpeed(ctx.ReadValue<Vector2>());
@@ -39,11 +35,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable() { inputs.Game.Moving.Disable(); inputs.Game.Jump.Disable(); }
 
-    private void Start()
-    {
-        StartCoroutine(MovePlayer());
-    }
+    private void Start() { StartCoroutine(MovePlayer()); }
 
+    /* Updates players current movement direction with input values.
+     * Called with Vector2.zero when player stops moving.
+     * @param direcion to set player's movement direction to
+     */
     private void RefreshPlayerSpeed(Vector2 moveDirection)
     {
         this.moveDirection = moveDirection;
@@ -63,30 +60,24 @@ public class PlayerMovement : MonoBehaviour
         {
             // Ground checking
             isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-            /*if (isGrounded && velocity.y < 0)
-                velocity.y = -2f;*/
-
 
             speedIncreaser = moving ? Mathf.Lerp(speedIncreaser, 1, Time.deltaTime * 5) : 0;
             Vector3 move = (transform.right * moveDirection.x + transform.forward * moveDirection.y) * speed * speedIncreaser;
             move.y = rb.velocity.y;
             rb.velocity = move;
-            //controller.Move(move / 100.0f * speed);
-
-           /* velocity.y += gravity / 100.0f;
-            controller.Move(velocity * Time.fixedDeltaTime);*/
 
             yield return new WaitForFixedUpdate();
         }
     }
 
-    public bool IsMoving() { return moving; }
-
-    public bool IsMovingBackwards() { return movingBackwards; }
-
-    public bool IsGrounded() { return isGrounded; }
-
-    public float GetSpeed() { return speed; }
+    #region Mutators and Accessors
 
     public void SetSpeed(float newSpeed) { speed = newSpeed; }
+
+    public bool GetMoving() { return moving; }
+    public bool GetMovingBackwards() { return movingBackwards; }
+    public bool GetGrounded() { return isGrounded; }
+    public float GetSpeed() { return speed; }
+
+    #endregion
 }

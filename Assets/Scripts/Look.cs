@@ -23,8 +23,7 @@ public class Look : MonoBehaviour
     {
         // Setting up inputs
         inputs = new InputMaster();
-        inputs.Game.Looking.performed += ctx => StartCoroutine(RotateCam(ctx.ReadValue<Vector2>()));
-        //inputs.Game.Looking.performed += ctx => CamMoved(ctx.ReadValue<Vector2>());
+        inputs.Game.Looking.performed += ctx => RotateCam(ctx.ReadValue<Vector2>());
         inputs.Game.Looking.Enable();
     }
 
@@ -51,17 +50,13 @@ public class Look : MonoBehaviour
     /* Rotates camera when mouse is moved
      * @param lookDirection x and y delta of mouse 
      */
-    IEnumerator RotateCam(Vector2 lookDirection)
+    void RotateCam(Vector2 lookDirection)
     {
-        //yield return new WaitForFixedUpdate();
-        if (paused)
-            yield break;
+        if (paused) return;
 
         leftRightRot += lookDirection.x / 100.0f * lookSensitivity;
-        //playerBody.Rotate(Vector3.up * lookDirection.x / 100.0f * lookSensitivity);
 
         upDownRot -= lookDirection.y / 100.0f * lookSensitivity;
         upDownRot = Mathf.Clamp(upDownRot, -90f, 90f);
-        //transform.localRotation = Quaternion.Euler(upDownRot, 0, 0);
     }
 }
