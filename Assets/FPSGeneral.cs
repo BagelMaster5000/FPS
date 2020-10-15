@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class FPSGeneral : MonoBehaviour
 {
     InputMaster inputs;
+    public Camera playerCam;
     FPSMovementManager playerMovementManager;
     FPSAnimationManager playerAnimationManager;
 
@@ -66,12 +67,21 @@ public class FPSGeneral : MonoBehaviour
         if (paused || curGunType == -1) return;
 
         if (!reloading && !playerMovementManager.GetSprinting())
+        {
             playerAnimationManager.PlayAnimation("Fire");
+            Vector3 rayDirection = playerCam.transform.forward;
+            RaycastHit hit;
+            if (Physics.Raycast(playerCam.transform.position, rayDirection, out hit, 999) && hit.collider.tag.Equals("Enemy"))
+            {
+                hit.collider.attachedRigidbody.AddForce(rayDirection * 15, ForceMode.Impulse);
+                hit.collider.GetComponent<Enemy>().TakeDamage(50);
+            }
+        }
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damageAmt)
     {
-        health -= damage;
+        health = Mathf.Clamp(health - damageAmt, 0, 100);
         healthBar.value = health / 100.0f;
         if (health <= 0)
             FindObjectOfType<PauseMenu>().ExitLevel();
