@@ -13,7 +13,7 @@ public class FPSMovementManager : MonoBehaviour
     const float RELOAD_SPEED_MULTIPLIER = 0.5f;
     const float SPRINT_FOV = 75;
     const float STANDARD_FOV = 60;
-    const float SCOPE_FOV = 40;
+    float currentScopeAmt = 20;
     const float FOV_LERP_FACTOR = 10;
 
     // Animation Variables
@@ -47,7 +47,7 @@ public class FPSMovementManager : MonoBehaviour
         if (sprinting && !reloading && playerBaseMovement.GetMoving() && !playerBaseMovement.GetMovingBackwards() && playerBaseMovement.GetGrounded())
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, SPRINT_FOV, 1 / FOV_LERP_FACTOR);
         else if (holdingGun && scoping && !reloading)
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, SCOPE_FOV, 1 / FOV_LERP_FACTOR);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, STANDARD_FOV - currentScopeAmt, 1 / FOV_LERP_FACTOR);
         else
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, STANDARD_FOV, 1 / FOV_LERP_FACTOR);
     }
@@ -59,6 +59,7 @@ public class FPSMovementManager : MonoBehaviour
     public void SetReloading(bool setReloading) { reloading = setReloading; }
     public void SetHoldingGun(bool setHoldingGun) { holdingGun = setHoldingGun; }
     public void SetPlayerBaseMovement(PlayerMovement setPlayerBaseMovement) { playerBaseMovement = setPlayerBaseMovement; }
+    public void SetCurrentScopeAmt(float setCurrentScopeAmt) { currentScopeAmt = setCurrentScopeAmt; }
 
     public bool GetSprinting() { return sprinting; }
     public bool GetScoping() { return scoping; }

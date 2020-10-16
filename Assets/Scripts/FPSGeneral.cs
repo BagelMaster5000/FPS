@@ -20,7 +20,6 @@ public class FPSGeneral : MonoBehaviour
 
     // Reloading
     bool reloading = false;
-    float reloadLength;
 
     // Pausing
     public static bool paused;
@@ -71,10 +70,13 @@ public class FPSGeneral : MonoBehaviour
             playerAnimationManager.PlayAnimation("Fire");
             Vector3 rayDirection = playerCam.transform.forward;
             RaycastHit hit;
-            if (Physics.Raycast(playerCam.transform.position, rayDirection, out hit, 999) && hit.collider.tag.Equals("Enemy"))
+            if (Physics.Raycast(playerCam.transform.position, rayDirection, out hit, 999))
             {
-                hit.collider.attachedRigidbody.AddForce(rayDirection * 15, ForceMode.Impulse);
-                hit.collider.GetComponent<Enemy>().TakeDamage(50);
+                if (hit.collider.GetComponent<Enemy>() != null)
+                {
+                    hit.collider.attachedRigidbody.AddForce(rayDirection * 15, ForceMode.Impulse);
+                    hit.collider.GetComponent<Enemy>().TakeDamage(50);
+                }
             }
         }
     }
@@ -90,11 +92,11 @@ public class FPSGeneral : MonoBehaviour
     void ObtainGun(int gunType)
     {
         SetCurGunType(gunType);
+        playerMovementManager.SetCurrentScopeAmt(allGuns[curGunType].gunType.scopeAmount);
     }
 
     #region Mutators and Accessors
 
-    public void SetReloadLength(float newReloadLength) { reloadLength = newReloadLength; }
     public void SetCurGunType(int setGunType)
     {
         if (setGunType < -1 || setGunType >= allGuns.Length) return;
@@ -119,7 +121,7 @@ public class FPSGeneral : MonoBehaviour
             playerMovementManager.SetReloading(true);
             playerAnimationManager.SetReloading(true);
             playerAnimationManager.PlayAnimation("Reload");
-            yield return new WaitForSecondsRealtime(reloadLength);
+            yield return new WaitForSecondsRealtime(allGuns[curGunType].gunType.reloadLength);
             playerMovementManager.SetReloading(false);
             playerAnimationManager.SetReloading(false);
         }

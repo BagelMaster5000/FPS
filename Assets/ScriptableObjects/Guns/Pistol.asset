@@ -13,4 +13,10 @@ MonoBehaviour:
   m_Name: Pistol
   m_EditorClassIdentifier: 
   gunName: Pistol
-  prefab: {fileID: 6289180312992648813, guid: d8154e70d0b7204448ba3d93af2c6d61, type: 3}
+  ammoMagazineSize: 12
+  ammoStarting: 12
+  ammoMax: 180
+  ammoPickupAmt: 60
+  damage: 15
+  reloadLength: 2
+  scopeAmount: 20
