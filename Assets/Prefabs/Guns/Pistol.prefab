@@ -57,7 +57,7 @@ Transform:
   m_GameObject: {fileID: 3131027191160994708}
   m_LocalRotation: {x: -0.7071059, y: -0, z: -0, w: 0.7071077}
   m_LocalPosition: {x: 0, y: 1.35, z: -0}
-  m_LocalScale: {x: 2.7036533, y: 2.7036533, z: 2.7036533}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children: []
   m_Father: {fileID: 135457305054788481}
   m_RootOrder: 0
@@ -608,8 +608,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   muzzleFlash: {fileID: 3071767191979046119}
-  gunShot: {fileID: 6289180312992648817}
-  reloadSound: {fileID: 0}
+  gunShot:
+    Name: Sound
+    audioClip: {fileID: 0}
+    volume: 0.5
+    audioSource: {fileID: 0}
+  reloadSounds: []
 --- !u!82 &6289180312992648817
 AudioSource:
   m_ObjectHideFlags: 0

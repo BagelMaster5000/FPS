@@ -1,22 +1,31 @@
-﻿using System.Collections;
+﻿using JetBrains.Annotations;
+using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(FPSMovementManager))]
 [RequireComponent(typeof(FPSAnimationManager))]
 public class FPSGeneral : MonoBehaviour
 {
-    InputMaster inputs;
+    [Header("General")]
     public Camera playerCam;
+    InputMaster inputs;
     FPSMovementManager playerMovementManager;
     FPSAnimationManager playerAnimationManager;
 
+    [Header("Events")]
+    public BoolEvent OnGunHitTarget; // True when killing blow
+    public FloatEvent OnDamageTaken; // float is current health 0-100
+    public StringEvent OnCurrentAmmoChanged; // int amount of ammo in magazine
+    public StringEvent OnTotalAmmoChanged; // int amount of total ammo
     float health = 100;
-    public Slider healthBar;
 
+    [Header("Guns")]
     public Gun[] allGuns;
     int curGunType = -1;
+    int ammoCurrent = 0;
+    int ammoTotal = 0;
 
     // Reloading
     bool reloading = false;
@@ -63,19 +72,24 @@ public class FPSGeneral : MonoBehaviour
 
     void Fire()
     {
-        if (paused || curGunType == -1) return;
+        if (paused || curGunType == -1 || ammoCurrent <= 0) return;
 
         if (!reloading && !playerMovementManager.GetSprinting())
         {
             playerAnimationManager.PlayAnimation("Fire");
+            ammoCurrent--;
+            OnCurrentAmmoChanged.Invoke(ammoCurrent.ToString());
+
             Vector3 rayDirection = playerCam.transform.forward;
             RaycastHit hit;
             if (Physics.Raycast(playerCam.transform.position, rayDirection, out hit, 999))
             {
-                if (hit.collider.GetComponent<Enemy>() != null)
+                if (hit.collider.CompareTag("Enemy"))
                 {
-                    hit.collider.attachedRigidbody.AddForce(rayDirection * 15, ForceMode.Impulse);
-                    hit.collider.GetComponent<Enemy>().TakeDamage(50);
+                    // Enemy is knocked-back when hit
+                    hit.collider.attachedRigidbody.AddForce(rayDirection * 8, ForceMode.Impulse);
+                    // Enemy takes damage and hitmarker appears. Hitmarker displays either white or red depending on if enemy was killed.
+                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(10));
                 }
             }
         }
@@ -84,7 +98,7 @@ public class FPSGeneral : MonoBehaviour
     public void TakeDamage(float damageAmt)
     {
         health = Mathf.Clamp(health - damageAmt, 0, 100);
-        healthBar.value = health / 100.0f;
+        OnDamageTaken.Invoke(health);
         if (health <= 0)
             FindObjectOfType<PauseMenu>().ExitLevel();
     }
@@ -92,6 +106,10 @@ public class FPSGeneral : MonoBehaviour
     void ObtainGun(int gunType)
     {
         SetCurGunType(gunType);
+        ammoCurrent = allGuns[gunType].gunType.ammoMagazineSize;
+        ammoTotal = allGuns[gunType].gunType.ammoStarting;
+        OnCurrentAmmoChanged.Invoke(ammoCurrent.ToString());
+        OnTotalAmmoChanged.Invoke(ammoTotal.ToString());
         playerMovementManager.SetCurrentScopeAmt(allGuns[curGunType].gunType.scopeAmount);
     }
 
@@ -101,6 +119,7 @@ public class FPSGeneral : MonoBehaviour
     {
         if (setGunType < -1 || setGunType >= allGuns.Length) return;
 
+        playerMovementManager.SetHoldingGun(setGunType > -1);
         curGunType = setGunType;
         playerAnimationManager.SetGunAnimator(allGuns[curGunType].gunAnimator);
         for (int n = 0; n < allGuns.Length; n++)
@@ -124,6 +143,11 @@ public class FPSGeneral : MonoBehaviour
             yield return new WaitForSecondsRealtime(allGuns[curGunType].gunType.reloadLength);
             playerMovementManager.SetReloading(false);
             playerAnimationManager.SetReloading(false);
+            int ammoAdding = Mathf.Clamp((allGuns[curGunType].gunType.ammoMagazineSize - ammoCurrent), 0, ammoTotal);
+            ammoCurrent += ammoAdding;
+            ammoTotal -= ammoAdding;
+            OnCurrentAmmoChanged.Invoke(ammoCurrent.ToString());
+            OnTotalAmmoChanged.Invoke(ammoTotal.ToString());
         }
     }
 }

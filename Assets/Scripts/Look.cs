@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 // For first person camera movement with lerped camera.
+// NOT to be attached to player object
 public class Look : MonoBehaviour
 {
     InputMaster inputs;
@@ -31,10 +31,6 @@ public class Look : MonoBehaviour
 
     private void Start()
     {
-        // Hides and disables cursor at start of scene
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-
         posOffset = transform.position - playerBody.position;
     }
 

@@ -2403,7 +2403,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highScoreTextView: {fileID: 12219375}
-  startingSong: {fileID: 8300000, guid: becf0f6e200190b4daa466ab0841dc01, type: 3}
+  startingSong:
+    Name: Music Track
+    track: {fileID: 0}
+    volume: 0
 --- !u!1 &1692592104
 GameObject:
   m_ObjectHideFlags: 0

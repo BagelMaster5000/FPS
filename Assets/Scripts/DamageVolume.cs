@@ -6,8 +6,10 @@ public class DamageVolume : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<FPSGeneral>() == null) return;
-
-        other.GetComponent<FPSGeneral>().TakeDamage(damageAmt);
+        if (other.CompareTag("Player"))
+        {
+            other.GetComponent<FPSGeneral>().TakeDamage(damageAmt);
+            other.GetComponent<Rigidbody>().AddForce(Vector3.up * 10, ForceMode.Impulse);
+        }
     }
 }

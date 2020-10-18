@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
     public static bool gamePaused;
     public GameObject pauseMenu;
+    public UnityEvent OnExitingLevel;
 
     InputMaster inputs;
 
@@ -56,16 +58,14 @@ public class PauseMenu : MonoBehaviour
     void SetObjectPause()
     {
         Look.paused = gamePaused;
+        FPSGeneral.paused = gamePaused;
     }
 
     public void ExitLevel()
     {
-        Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        int highScore = PlayerPrefs.GetInt("HighScore");
-        if (Level01Controller.curScore > highScore) // Setting new highscore if necessary
-            PlayerPrefs.SetInt("HighScore", Level01Controller.curScore);
-        Debug.Log("Current high score is " + PlayerPrefs.GetInt("HighScore"));
+        Cursor.lockState = CursorLockMode.None;
+        OnExitingLevel.Invoke();
         SceneManager.LoadScene("MainMenu"); // Exiting scene
     }
 }

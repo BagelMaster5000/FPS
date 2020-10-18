@@ -4,14 +4,14 @@ using UnityEngine;
 public class MainMenuController : MonoBehaviour
 {
     public TextMeshProUGUI highScoreTextView;
-    public AudioClip startingSong;
+    public MusicTrack startingSong;
 
     private void Start()
     {
         highScoreTextView.text = "Highscore: " + PlayerPrefs.GetInt("HighScore");
 
         if (startingSong != null)
-            AudioManager.PlaySongHelper(startingSong, 0.25f);
+            AudioManager.PlaySongHelper(startingSong);
     }
 
     public void ResetSaveData()

@@ -21,8 +21,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Laser
-  m_Shader: {fileID: 4800000, guid: f7e38193b7f064d7380403618fd8b69e, type: 3}
-  m_ShaderKeywords: _CELPRIMARYMODE_SINGLE _NORMALMAP_TANGENT_SPACE _TEXTUREBLENDINGMODE_MULTIPLY
+  m_Shader: {fileID: 4800000, guid: bee44b4a58655ee4cbff107302a3e131, type: 3}
+  m_ShaderKeywords: _CELPRIMARYMODE_CURVE _NORMALMAP_TANGENT_SPACE _TEXTUREBLENDINGMODE_MULTIPLY
     _UNITYSHADOWMODE_NONE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -56,7 +56,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CelCurveTexture:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 9bb510b88069fa64faf4f2604b91eb76, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CelStepTexture:
@@ -152,7 +152,7 @@ Material:
     - _BlendMode: 0
     - _CelExtraEnabled: 0
     - _CelNumSteps: 3
-    - _CelPrimaryMode: 1
+    - _CelPrimaryMode: 3
     - _CoatMask: 0
     - _CullMode: 2
     - _CullModeForward: 2
@@ -225,7 +225,7 @@ Material:
     - _NormalMapSpace: 0
     - _NormalScale: 1
     - _OutlineDepthOffset: 0
-    - _OutlineWidth: 73
+    - _OutlineWidth: 8
     - _PPDLodThreshold: 5
     - _PPDMaxSamples: 15
     - _PPDMinSamples: 5
@@ -290,9 +290,9 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 100, g: 0, b: 0, a: 100}
-    - _ColorDim: {r: 100.00002, g: 0, b: 0, a: 100}
-    - _ColorDimCurve: {r: 0.85023, g: 0.85034, b: 0.8504499, a: 0.85056}
+    - _Color: {r: 1, g: 0, b: 0, a: 100}
+    - _ColorDim: {r: 0.5660378, g: 0, b: 0, a: 100}
+    - _ColorDimCurve: {r: 0, g: 0, b: 0, a: 100}
     - _ColorDimExtra: {r: 0.85023, g: 0.85034, b: 0.8504499, a: 0.85056}
     - _ColorDimSteps: {r: 0.85023, g: 0.85034, b: 0.8504499, a: 0.85056}
     - _ColorGradient: {r: 0.85023, g: 0.85034, b: 0.85045, a: 0.85056}
@@ -305,7 +305,7 @@ Material:
     - _FlatSpecularColor: {r: 0.85023, g: 0.85034, b: 0.85045, a: 0.85056}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _OutlineColor: {r: 1, g: 1, b: 0, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}

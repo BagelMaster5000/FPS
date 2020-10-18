@@ -3,11 +3,9 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class Enemy : MonoBehaviour
+public class EnemyLaserAddition : MonoBehaviour
 {
-    float health = 100;
-    public Transform target;
-    NavMeshAgent agentComponent;
+    Transform target;
     public Transform laser1LaunchPoint;
     public Transform laser2LaunchPoint;
     public LineRenderer laser1;
@@ -20,52 +18,15 @@ public class Enemy : MonoBehaviour
     const float DELAY_BETWEEN_SHOTS = 4.5f;
     public Material trackingLaser;
     public Material shotLaser;
-
-    const float ACTIVATION_RANGE = 10;
     const float ATTACK_DAMAGE = 40;
 
     private void Start()
     {
-        agentComponent = GetComponent<NavMeshAgent>();
-        agentComponent.enabled = false;
-        StartCoroutine(CheckForActivation());
+        target = GetComponent<EnemyGeneral>().target;
+        GetComponent<EnemyGeneral>().OnActivated += Activated;
     }
 
-    public void TakeDamage(float damageAmt)
-    {
-        Debug.Log("Took damage");
-        health = Mathf.Clamp(health - damageAmt, 0, 100);
-        if (health <= 0)
-        {
-            StopAllCoroutines();
-            Destroy(this.gameObject);
-        }
-    }
-
-    // Loops until player walks into activation range
-    IEnumerator CheckForActivation()
-    {
-        while (true)
-        {
-            if ((target.position - transform.position).magnitude < ACTIVATION_RANGE)
-            {
-                agentComponent.enabled = true;
-                StartCoroutine(SettingDestination());
-                StartCoroutine(LaserAttackLoop());
-                yield break;
-            }
-            yield return new WaitForSeconds(0.2f);
-        }
-    }
-
-    IEnumerator SettingDestination()
-    {
-        while (true)
-        {
-            agentComponent.SetDestination(target.position);
-            yield return null;
-        }
-    }
+    void Activated() { StartCoroutine(LaserAttackLoop()); }
 
     IEnumerator LaserAttackLoop()
     {
@@ -87,8 +48,8 @@ public class Enemy : MonoBehaviour
         {
             laser1.SetPosition(0, laser1LaunchPoint.position);
             laser2.SetPosition(0, laser2LaunchPoint.position);
-            aimDirection = target.position - transform.position;
-            if (Physics.Raycast(transform.position, aimDirection, out hit))
+            aimDirection = target.position - (laser1LaunchPoint.position + laser2LaunchPoint.position) / 2.0f + Vector3.down / 2.0f;
+            if (Physics.Raycast(transform.position, aimDirection, out hit) && !hit.collider.CompareTag("Player"))
             {
                 laser1.SetPosition(1, hit.point + LASER_HIT_DELTA);
                 laser2.SetPosition(1, hit.point + LASER_HIT_DELTA);

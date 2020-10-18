@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gunName: Pistol
   ammoMagazineSize: 12
-  ammoStarting: 12
+  ammoStarting: 98
   ammoMax: 180
   ammoPickupAmt: 60
   damage: 15

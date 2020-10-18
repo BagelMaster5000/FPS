@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Laser Preview
-  m_Shader: {fileID: 4800000, guid: f7e38193b7f064d7380403618fd8b69e, type: 3}
+  m_Shader: {fileID: 4800000, guid: bee44b4a58655ee4cbff107302a3e131, type: 3}
   m_ShaderKeywords: _BLENDMODE_ALPHA _CELPRIMARYMODE_NONE _ENABLE_FOG_ON_TRANSPARENT
     _NORMALMAP_TANGENT_SPACE _SURFACE_TYPE_TRANSPARENT _TEXTUREBLENDINGMODE_MULTIPLY
     _UNITYSHADOWMODE_NONE
@@ -213,7 +213,7 @@ Material:
     - _NormalMapSpace: 0
     - _NormalScale: 1
     - _OutlineDepthOffset: 0.123
-    - _OutlineWidth: 47.8
+    - _OutlineWidth: 40.24
     - _PPDLodThreshold: 5
     - _PPDMaxSamples: 15
     - _PPDMinSamples: 5
