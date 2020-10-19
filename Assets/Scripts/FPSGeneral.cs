@@ -8,19 +8,29 @@ using UnityEngine;
 [RequireComponent(typeof(FPSAnimationManager))]
 public class FPSGeneral : MonoBehaviour
 {
+    // General
     [Header("General")]
     public Camera playerCam;
     InputMaster inputs;
     FPSMovementManager playerMovementManager;
     FPSAnimationManager playerAnimationManager;
 
+    // Events
     [Header("Events")]
     public BoolEvent OnGunHitTarget; // True when killing blow
     public FloatEvent OnDamageTaken; // float is current health 0-100
+    public FloatEvent OnHealthRegenerated; // float is current health 0-100
     public StringEvent OnCurrentAmmoChanged; // int amount of ammo in magazine
     public StringEvent OnTotalAmmoChanged; // int amount of total ammo
-    float health = 100;
+    public VoidEvent OnDead;
 
+    // Health
+    float health = 100;
+    const float HEALTH_REGEN_DELAY = 4;
+    float healthRegenDelayer;
+    const float HEALTH_REGEN_PER_SECOND = 15;
+
+    // Guns
     [Header("Guns")]
     public Gun[] allGuns;
     int curGunType = -1;
@@ -67,6 +77,7 @@ public class FPSGeneral : MonoBehaviour
 
     private void Start()
     {
+        StartCoroutine(HealthRegeneration());
         ObtainGun(0);
     }
 
@@ -89,7 +100,7 @@ public class FPSGeneral : MonoBehaviour
                     // Enemy is knocked-back when hit
                     hit.collider.attachedRigidbody.AddForce(rayDirection * 8, ForceMode.Impulse);
                     // Enemy takes damage and hitmarker appears. Hitmarker displays either white or red depending on if enemy was killed.
-                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(10));
+                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(allGuns[curGunType].gunType.damage));
                 }
             }
         }
@@ -99,8 +110,11 @@ public class FPSGeneral : MonoBehaviour
     {
         health = Mathf.Clamp(health - damageAmt, 0, 100);
         OnDamageTaken.Invoke(health);
+        healthRegenDelayer = Time.time + HEALTH_REGEN_DELAY;
         if (health <= 0)
-            FindObjectOfType<PauseMenu>().ExitLevel();
+        {
+            OnDead.Invoke();
+        }
     }
 
     void ObtainGun(int gunType)
@@ -130,6 +144,20 @@ public class FPSGeneral : MonoBehaviour
 
     #endregion
 
+    // Regenerates health if low after a delay
+    IEnumerator HealthRegeneration()
+    {
+        while (true)
+        {
+            if (Time.time > healthRegenDelayer)
+            {
+                health = Mathf.Clamp(health + HEALTH_REGEN_PER_SECOND / 50.0f, 0, 100);
+                OnHealthRegenerated.Invoke(health);
+            }
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
     // Waits until reload is finished before allowing other actions
     IEnumerator Reload()
     {
@@ -137,10 +165,13 @@ public class FPSGeneral : MonoBehaviour
 
         if (!reloading)
         {
+            // Starting reload animation
             playerMovementManager.SetReloading(true);
             playerAnimationManager.SetReloading(true);
             playerAnimationManager.PlayAnimation("Reload");
             yield return new WaitForSecondsRealtime(allGuns[curGunType].gunType.reloadLength);
+
+            // Reload executes
             playerMovementManager.SetReloading(false);
             playerAnimationManager.SetReloading(false);
             int ammoAdding = Mathf.Clamp((allGuns[curGunType].gunType.ammoMagazineSize - ammoCurrent), 0, ammoTotal);

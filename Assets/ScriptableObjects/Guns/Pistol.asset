@@ -17,6 +17,6 @@ MonoBehaviour:
   ammoStarting: 98
   ammoMax: 180
   ammoPickupAmt: 60
-  damage: 15
+  damage: 40
   reloadLength: 2
   scopeAmount: 20

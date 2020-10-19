@@ -46,7 +46,7 @@ public class FPSMovementManager : MonoBehaviour
         // Updating FOV
         if (sprinting && !reloading && playerBaseMovement.GetMoving() && !playerBaseMovement.GetMovingBackwards() && playerBaseMovement.GetGrounded())
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, SPRINT_FOV, 1 / FOV_LERP_FACTOR);
-        else if (holdingGun && scoping && !reloading)
+        else if (holdingGun && scoping && !reloading && !sprinting)
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, STANDARD_FOV - currentScopeAmt, 1 / FOV_LERP_FACTOR);
         else
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, STANDARD_FOV, 1 / FOV_LERP_FACTOR);

@@ -10,14 +10,14 @@ public class EnemyGeneral : MonoBehaviour
     public Transform target;
     NavMeshAgent agentComponent;
 
-    const float ACTIVATION_RANGE = 10;
+    const float ACTIVATION_RANGE = 25;
     bool activated;
 
     public event Action OnActivated;
     public UnityEvent OnHit;
     public UnityEvent OnKilled;
 
-    private void Start()
+    private void Awake()
     {
         agentComponent = GetComponent<NavMeshAgent>();
         agentComponent.enabled = false;
@@ -42,9 +42,10 @@ public class EnemyGeneral : MonoBehaviour
         return false;
     }
 
-    void Activate()
+    public void Activate()
     {
         agentComponent.enabled = true;
+        StopAllCoroutines();
         StartCoroutine(SettingDestination());
         OnActivated?.Invoke();
         activated = true;

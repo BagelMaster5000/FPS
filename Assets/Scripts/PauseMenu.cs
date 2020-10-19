@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
     public static bool gamePaused;
     public GameObject pauseMenu;
-    public UnityEvent OnExitingLevel;
+    public VoidEvent OnExitingLevel;
 
     InputMaster inputs;
 
@@ -19,39 +18,46 @@ public class PauseMenu : MonoBehaviour
 
     private void OnDisable() { inputs.LevelMenu.Pause.Disable(); }
 
-    private void Start()
-    {
-        Resume();
-    }
+    private void Start() { Resume(); }
 
     void TogglePause()
     {
         if (gamePaused)
             Resume();
         else
+        {
             Pause();
+            ShowMenu(true);
+        }
     }
 
     public void Resume()
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        pauseMenu.SetActive(false);
         Time.timeScale = 1;
         gamePaused = false;
+        ShowMenu(false);
 
         SetObjectPause();
     }
 
-    void Pause()
+    public void Pause()
     {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        pauseMenu.SetActive(true);
         Time.timeScale = 0;
         gamePaused = true;
 
         SetObjectPause();
+    }
+
+    /* Shows or hides pause menu depending on parameter
+     * @param showMenu true if menu is to be shown
+     */
+    void ShowMenu(bool showMenu)
+    {
+        pauseMenu.SetActive(showMenu);
     }
 
     // Toggles pauses of objects

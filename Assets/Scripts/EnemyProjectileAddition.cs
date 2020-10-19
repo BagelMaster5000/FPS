@@ -12,19 +12,23 @@ public class EnemyProjectileAddition : MonoBehaviour
     const float SHOT_INTERVAL = 4;
     const float ATTACK_DAMAGE = 40;
 
-    private void Start()
+    public VoidEvent OnFired;
+
+    private void Awake() { GetComponent<EnemyGeneral>().OnActivated += Activated; }
+
+    void Activated()
     {
         target = GetComponent<EnemyGeneral>().target;
-        GetComponent<EnemyGeneral>().OnActivated += Activated;
+        StartCoroutine(ProjectileAttackLoop());
     }
-
-    void Activated() { StartCoroutine(ProjectileAttackLoop());}
 
     IEnumerator ProjectileAttackLoop()
     {
         while (true)
         {
             yield return new WaitForSeconds(SHOT_INTERVAL);
+            // Firing bullet
+            OnFired.Invoke();
             Instantiate(prefabBullet, launchLoc.position, Quaternion.identity).
                 GetComponent<Bullet>().Setup(target.position - launchLoc.position, ATTACK_DAMAGE);
         }

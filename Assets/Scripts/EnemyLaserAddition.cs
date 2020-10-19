@@ -20,13 +20,16 @@ public class EnemyLaserAddition : MonoBehaviour
     public Material shotLaser;
     const float ATTACK_DAMAGE = 40;
 
-    private void Start()
+    public VoidEvent OnLaserBeginCharging;
+    public VoidEvent OnLaserFired;
+
+    private void Awake() { GetComponent<EnemyGeneral>().OnActivated += Activated; }
+
+    void Activated()
     {
         target = GetComponent<EnemyGeneral>().target;
-        GetComponent<EnemyGeneral>().OnActivated += Activated;
+        StartCoroutine(LaserAttackLoop());
     }
-
-    void Activated() { StartCoroutine(LaserAttackLoop()); }
 
     IEnumerator LaserAttackLoop()
     {
@@ -39,6 +42,8 @@ public class EnemyLaserAddition : MonoBehaviour
 
     IEnumerator LaserAttack()
     {
+        // Laser starts charging
+        OnLaserBeginCharging.Invoke();
         float timeLimit = Time.time + TRACKING_LENGTH;
         Vector3 aimDirection;
         RaycastHit hit;
@@ -70,11 +75,10 @@ public class EnemyLaserAddition : MonoBehaviour
         }
 
         // Laser is shot
+        OnLaserFired.Invoke();
         laser1.material = laser2.material = shotLaser;
         if (Physics.Raycast(transform.position, laser1.GetPosition(1) - laser1.GetPosition(0), out hit) && hit.collider.GetComponent<FPSGeneral>() != null)
-        {
             hit.collider.GetComponent<FPSGeneral>().TakeDamage(ATTACK_DAMAGE);
-        }
         timeLimit = Time.time + AFTERSHOT_LENGTH;
         while (timeLimit > Time.time)
         {
