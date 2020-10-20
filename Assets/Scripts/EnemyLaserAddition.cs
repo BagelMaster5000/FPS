@@ -19,6 +19,9 @@ public class EnemyLaserAddition : MonoBehaviour
     public Material trackingLaser;
     public Material shotLaser;
     const float ATTACK_DAMAGE = 40;
+    Vector3 laserAimDirection;
+    float laserAttackTimeLimit;
+    RaycastHit laserRaycastHit;
 
     public VoidEvent OnLaserBeginCharging;
     public VoidEvent OnLaserFired;
@@ -44,30 +47,28 @@ public class EnemyLaserAddition : MonoBehaviour
     {
         // Laser starts charging
         OnLaserBeginCharging.Invoke();
-        float timeLimit = Time.time + TRACKING_LENGTH;
-        Vector3 aimDirection;
-        RaycastHit hit;
+        laserAttackTimeLimit = Time.time + TRACKING_LENGTH;
         laser1.material = laser2.material = trackingLaser;
         laser1.enabled = laser2.enabled = true;
-        while (timeLimit > Time.time)
+        while (laserAttackTimeLimit > Time.time)
         {
+            yield return new WaitForEndOfFrame();
             laser1.SetPosition(0, laser1LaunchPoint.position);
             laser2.SetPosition(0, laser2LaunchPoint.position);
-            aimDirection = target.position - (laser1LaunchPoint.position + laser2LaunchPoint.position) / 2.0f + Vector3.down / 2.0f;
-            if (Physics.Raycast(transform.position, aimDirection, out hit) && !hit.collider.CompareTag("Player"))
+            laserAimDirection = target.position - (laser1LaunchPoint.position + laser2LaunchPoint.position) / 2.0f + Vector3.down / 2.0f;
+            if (Physics.Raycast(transform.position, laserAimDirection, out laserRaycastHit) && !laserRaycastHit.collider.CompareTag("Player"))
             {
-                laser1.SetPosition(1, hit.point + LASER_HIT_DELTA);
-                laser2.SetPosition(1, hit.point + LASER_HIT_DELTA);
+                laser1.SetPosition(1, laserRaycastHit.point + LASER_HIT_DELTA);
+                laser2.SetPosition(1, laserRaycastHit.point + LASER_HIT_DELTA);
             }
             else
             {
-                laser1.SetPosition(1, transform.position + aimDirection * 99);
-                laser2.SetPosition(1, transform.position + aimDirection * 99);
+                laser1.SetPosition(1, transform.position + laserAimDirection * 99);
+                laser2.SetPosition(1, transform.position + laserAimDirection * 99);
             }
-            yield return new WaitForEndOfFrame();
         }
-        timeLimit = Time.time + WAITING_LENGTH;
-        while (timeLimit > Time.time)
+        laserAttackTimeLimit = Time.time + WAITING_LENGTH;
+        while (laserAttackTimeLimit > Time.time)
         {
             laser1.SetPosition(0, laser1LaunchPoint.position);
             laser2.SetPosition(0, laser2LaunchPoint.position);
@@ -77,10 +78,10 @@ public class EnemyLaserAddition : MonoBehaviour
         // Laser is shot
         OnLaserFired.Invoke();
         laser1.material = laser2.material = shotLaser;
-        if (Physics.Raycast(transform.position, laser1.GetPosition(1) - laser1.GetPosition(0), out hit) && hit.collider.GetComponent<FPSGeneral>() != null)
-            hit.collider.GetComponent<FPSGeneral>().TakeDamage(ATTACK_DAMAGE);
-        timeLimit = Time.time + AFTERSHOT_LENGTH;
-        while (timeLimit > Time.time)
+        if (Physics.Raycast(transform.position, laser1.GetPosition(1) - laser1.GetPosition(0), out laserRaycastHit) && laserRaycastHit.collider.CompareTag("Player"))
+            laserRaycastHit.collider.GetComponent<FPSGeneral>().TakeDamage(ATTACK_DAMAGE);
+        laserAttackTimeLimit = Time.time + AFTERSHOT_LENGTH;
+        while (laserAttackTimeLimit > Time.time)
         {
             laser1.SetPosition(0, laser1LaunchPoint.position);
             laser2.SetPosition(0, laser2LaunchPoint.position);

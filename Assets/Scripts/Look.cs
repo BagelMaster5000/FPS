@@ -6,7 +6,7 @@ public class Look : MonoBehaviour
 {
     InputMaster inputs;
 
-    public float lookSensitivity = 60;
+    const float BASE_LOOK_SENSITIVITY = 10;
 
     // Rotational values
     float upDownRot = 0.0f;
@@ -15,8 +15,8 @@ public class Look : MonoBehaviour
     // Camera lerping
     public Transform playerBody;
     public Vector3 posOffset;
-    const float CAM_MOVE_LERP_FACTOR = 10;
-    const float CAM_ROT_LERP_FACTOR = 9;
+    const float CAM_MOVE_LERP_FACTOR = 2;
+    const float CAM_ROT_LERP_FACTOR = 5;
 
     public static bool paused;
 
@@ -37,14 +37,22 @@ public class Look : MonoBehaviour
 
     void LateUpdate()
     {
-/*        print("playerBody.eulerAngles.y = " + playerBody.eulerAngles.y);
-        print("leftRightRot = " + leftRightRot);*/
-        playerBody.localRotation = Quaternion.Euler(0, Mathf.LerpAngle(playerBody.eulerAngles.y, leftRightRot, 1 / CAM_ROT_LERP_FACTOR), 0);
-        //playerBody.localRotation = Quaternion.Euler(0, leftRightRot, 0);
-        transform.localRotation = Quaternion.Euler(Mathf.LerpAngle(transform.eulerAngles.x, upDownRot, 1 / CAM_ROT_LERP_FACTOR), Mathf.LerpAngle(playerBody.eulerAngles.y, leftRightRot, 1 / CAM_ROT_LERP_FACTOR), 0);
+        Debug.Log(1 / CAM_ROT_LERP_FACTOR * 100 * Time.unscaledDeltaTime);
+        // Smoothing player turning
+        playerBody.localRotation = Quaternion.Euler(
+            0,
+            Mathf.LerpAngle(playerBody.eulerAngles.y, leftRightRot, Mathf.Clamp(1 / CAM_ROT_LERP_FACTOR * 100 * Time.unscaledDeltaTime, 0.01f, 1)),
+            0);
+        // Smooth camera rotation
+        transform.localRotation = Quaternion.Euler(
+            Mathf.LerpAngle(transform.eulerAngles.x, upDownRot, Mathf.Clamp(1 / CAM_ROT_LERP_FACTOR * 100 * Time.unscaledDeltaTime, 0.01f, 1)),
+            Mathf.LerpAngle(playerBody.eulerAngles.y, leftRightRot, Mathf.Clamp(1 / CAM_ROT_LERP_FACTOR * 100 * Time.unscaledDeltaTime, 0.01f, 1)),
+            0);
+        // Smoothing player movement
         transform.position =
-            //(goToPosition.position + posOffset); //No smoothing
-            (playerBody.position + posOffset) + (transform.position - (playerBody.position + posOffset)) / CAM_MOVE_LERP_FACTOR * (CAM_MOVE_LERP_FACTOR - 1); // With smoothing
+            (playerBody.position + posOffset) +
+            (transform.position - (playerBody.position + posOffset)) /
+            (CAM_MOVE_LERP_FACTOR / 50 / Time.unscaledDeltaTime) * ((CAM_MOVE_LERP_FACTOR / 50 / Time.unscaledDeltaTime) - 1);
     }
 
     /* Rotates camera when mouse is moved
@@ -54,9 +62,9 @@ public class Look : MonoBehaviour
     {
         if (paused) return;
 
-        leftRightRot += lookDirection.x * lookSensitivity * Time.fixedDeltaTime;
+        leftRightRot += lookDirection.x * BASE_LOOK_SENSITIVITY / 10000 / Time.deltaTime;
 
-        upDownRot -= lookDirection.y * lookSensitivity * Time.fixedDeltaTime;
+        upDownRot -= lookDirection.y * BASE_LOOK_SENSITIVITY / 10000 / Time.deltaTime;
         upDownRot = Mathf.Clamp(upDownRot, -90f, 90f);
     }
 }

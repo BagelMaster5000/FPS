@@ -2905,7 +2905,7 @@ Transform:
   - {fileID: 2801705359138904317}
   - {fileID: 671684823}
   m_Father: {fileID: 1897354689917215771}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2801705360243101028
 MonoBehaviour:
@@ -3573,7 +3573,7 @@ Transform:
   - {fileID: 2801705360190775790}
   - {fileID: 2801705359560112733}
   m_Father: {fileID: 1897354689917215771}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &2801705360657761612
 Camera:
@@ -3638,7 +3638,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f113323d355c3be4daf762245fe3d1a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lookSensitivity: 100
   playerBody: {fileID: 2801705360243101025}
   posOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &7611422179800556041
@@ -3668,8 +3667,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.06, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2801705360243101025}
   - {fileID: 2801705360657761603}
+  - {fileID: 2801705360243101025}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

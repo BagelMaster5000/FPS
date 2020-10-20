@@ -6,7 +6,7 @@ public class HealthBar : MonoBehaviour
 {
     Slider healthBar;
 
-    private void Start() { healthBar = GetComponent<Slider>(); }
+    private void Awake() { healthBar = GetComponent<Slider>(); }
 
     public void SetHealthBarValue(float setHealth) { healthBar.value = setHealth / 100.0f; }
 }
