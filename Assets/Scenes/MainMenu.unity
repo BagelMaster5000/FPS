@@ -2405,8 +2405,8 @@ MonoBehaviour:
   highScoreTextView: {fileID: 12219375}
   startingSong:
     Name: Music Track
-    track: {fileID: 0}
-    volume: 0
+    track: {fileID: 8300000, guid: e46ae7ed883d87643a9d498e02edb239, type: 3}
+    volume: 0.24
 --- !u!1 &1692592104
 GameObject:
   m_ObjectHideFlags: 0

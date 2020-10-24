@@ -37,7 +37,7 @@ public class Look : MonoBehaviour
 
     void LateUpdate()
     {
-        Debug.Log(1 / CAM_ROT_LERP_FACTOR * 100 * Time.unscaledDeltaTime);
+        // Debug.Log(1 / CAM_ROT_LERP_FACTOR * 100 * Time.unscaledDeltaTime);
         // Smoothing player turning
         playerBody.localRotation = Quaternion.Euler(
             0,

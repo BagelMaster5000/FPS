@@ -5,6 +5,7 @@ public class DeathMenu : MonoBehaviour
 { 
     public GameObject deathMenu;
 
+    public VoidEvent OnRestartingLevel;
     public VoidEvent OnExitingLevel;
 
     public void ShowMenu()
@@ -14,7 +15,11 @@ public class DeathMenu : MonoBehaviour
         deathMenu.SetActive(true);
     }
 
-    public void Restart() { SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); }
+    public void Restart()
+    {
+        OnRestartingLevel.Invoke();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
 
     public void ExitLevel()
     {

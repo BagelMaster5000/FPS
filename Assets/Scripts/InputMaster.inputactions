@@ -44,14 +44,6 @@
             "id": "e64f0e50-ed16-44ec-9ab7-a1f5bc12f237",
             "actions": [
                 {
-                    "name": "Increase Score",
-                    "type": "Button",
-                    "id": "3e8e487d-afb2-487a-8eb8-908ad894d5de",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
                     "name": "Looking",
                     "type": "Value",
                     "id": "068d49ea-2ad6-499f-bf81-2cd917e5d8ab",
@@ -109,17 +101,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "39170f15-9690-40a7-a297-20b552954dae",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Increase Score",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "88135299-fcc2-4b8f-b268-4e89625d2482",

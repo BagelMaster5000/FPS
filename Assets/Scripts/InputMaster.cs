@@ -57,14 +57,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
             ""id"": ""e64f0e50-ed16-44ec-9ab7-a1f5bc12f237"",
             ""actions"": [
                 {
-                    ""name"": ""Increase Score"",
-                    ""type"": ""Button"",
-                    ""id"": ""3e8e487d-afb2-487a-8eb8-908ad894d5de"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """"
-                },
-                {
                     ""name"": ""Looking"",
                     ""type"": ""Value"",
                     ""id"": ""068d49ea-2ad6-499f-bf81-2cd917e5d8ab"",
@@ -122,17 +114,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 }
             ],
             ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""39170f15-9690-40a7-a297-20b552954dae"",
-                    ""path"": ""<Keyboard>/q"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Increase Score"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
                 {
                     ""name"": """",
                     ""id"": ""88135299-fcc2-4b8f-b268-4e89625d2482"",
@@ -264,7 +245,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_LevelMenu_Pause = m_LevelMenu.FindAction("Pause", throwIfNotFound: true);
         // Game
         m_Game = asset.FindActionMap("Game", throwIfNotFound: true);
-        m_Game_IncreaseScore = m_Game.FindAction("Increase Score", throwIfNotFound: true);
         m_Game_Looking = m_Game.FindAction("Looking", throwIfNotFound: true);
         m_Game_Moving = m_Game.FindAction("Moving", throwIfNotFound: true);
         m_Game_Jump = m_Game.FindAction("Jump", throwIfNotFound: true);
@@ -354,7 +334,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
     // Game
     private readonly InputActionMap m_Game;
     private IGameActions m_GameActionsCallbackInterface;
-    private readonly InputAction m_Game_IncreaseScore;
     private readonly InputAction m_Game_Looking;
     private readonly InputAction m_Game_Moving;
     private readonly InputAction m_Game_Jump;
@@ -366,7 +345,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
     {
         private @InputMaster m_Wrapper;
         public GameActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
-        public InputAction @IncreaseScore => m_Wrapper.m_Game_IncreaseScore;
         public InputAction @Looking => m_Wrapper.m_Game_Looking;
         public InputAction @Moving => m_Wrapper.m_Game_Moving;
         public InputAction @Jump => m_Wrapper.m_Game_Jump;
@@ -383,9 +361,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
         {
             if (m_Wrapper.m_GameActionsCallbackInterface != null)
             {
-                @IncreaseScore.started -= m_Wrapper.m_GameActionsCallbackInterface.OnIncreaseScore;
-                @IncreaseScore.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnIncreaseScore;
-                @IncreaseScore.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnIncreaseScore;
                 @Looking.started -= m_Wrapper.m_GameActionsCallbackInterface.OnLooking;
                 @Looking.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnLooking;
                 @Looking.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnLooking;
@@ -411,9 +386,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
             m_Wrapper.m_GameActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @IncreaseScore.started += instance.OnIncreaseScore;
-                @IncreaseScore.performed += instance.OnIncreaseScore;
-                @IncreaseScore.canceled += instance.OnIncreaseScore;
                 @Looking.started += instance.OnLooking;
                 @Looking.performed += instance.OnLooking;
                 @Looking.canceled += instance.OnLooking;
@@ -445,7 +417,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
     }
     public interface IGameActions
     {
-        void OnIncreaseScore(InputAction.CallbackContext context);
         void OnLooking(InputAction.CallbackContext context);
         void OnMoving(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
