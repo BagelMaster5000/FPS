@@ -380,7 +380,7 @@ GameObject:
   - component: {fileID: 3655612245568082574}
   - component: {fileID: 3655612245568082572}
   - component: {fileID: 3655612245568082575}
-  - component: {fileID: 3655612245568082573}
+  - component: {fileID: 8657901262724179562}
   m_Layer: 0
   m_Name: Particles Killed
   m_TagString: Untagged
@@ -5182,7 +5182,7 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &3655612245568082573
+--- !u!114 &8657901262724179562
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5191,7 +5191,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3655612245568082569}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 023357f38db6e9541a8a0ef83c4305ed, type: 3}
+  m_Script: {fileID: 11500000, guid: ed1b51bfdb197b34594a6fbb9fec834f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &3655612245896775865
@@ -5205,7 +5205,7 @@ GameObject:
   - component: {fileID: 3655612245896775868}
   - component: {fileID: 3655612245896775869}
   - component: {fileID: 3655612245896775871}
-  - component: {fileID: 3655612245896775870}
+  - component: {fileID: 564902852396899507}
   m_Layer: 0
   m_Name: Particles Hit
   m_TagString: Untagged
@@ -10007,7 +10007,7 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &3655612245896775870
+--- !u!114 &564902852396899507
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10016,7 +10016,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3655612245896775865}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 023357f38db6e9541a8a0ef83c4305ed, type: 3}
+  m_Script: {fileID: 11500000, guid: ed1b51bfdb197b34594a6fbb9fec834f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &3655612245938760929
@@ -10131,7 +10131,7 @@ MonoBehaviour:
   OnKilled:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3655612245568082573}
+      - m_Target: {fileID: 8657901262724179562}
         m_MethodName: Activate
         m_Mode: 1
         m_Arguments:
@@ -10142,7 +10142,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 3655612245896775870}
+      - m_Target: {fileID: 564902852396899507}
         m_MethodName: Activate
         m_Mode: 1
         m_Arguments:
@@ -10153,7 +10153,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 3655612247105394809}
+      - m_Target: {fileID: 8756446028467989480}
         m_MethodName: Activate
         m_Mode: 1
         m_Arguments:
@@ -10164,7 +10164,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1691844460}
+      - m_Target: {fileID: 6760291961295561717}
         m_MethodName: Activate
         m_Mode: 1
         m_Arguments:
@@ -10636,7 +10636,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3655612247071655949}
   - component: {fileID: 3655612247071655938}
-  - component: {fileID: 1691844460}
+  - component: {fileID: 6760291961295561717}
   m_Layer: 0
   m_Name: Sound Hit
   m_TagString: Untagged
@@ -10754,7 +10754,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1691844460
+--- !u!114 &6760291961295561717
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10763,7 +10763,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3655612247071655948}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fb3298eb9b2a7548a06695139a66966, type: 3}
+  m_Script: {fileID: 11500000, guid: a2db74f63fce669439be5e28ac6c7648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &3655612247105394808
@@ -10776,7 +10776,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3655612247105394815}
   - component: {fileID: 3655612247105394814}
-  - component: {fileID: 3655612247105394809}
+  - component: {fileID: 8756446028467989480}
   m_Layer: 0
   m_Name: Sound Killed
   m_TagString: Untagged
@@ -10894,7 +10894,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &3655612247105394809
+--- !u!114 &8756446028467989480
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10903,6 +10903,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3655612247105394808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fb3298eb9b2a7548a06695139a66966, type: 3}
+  m_Script: {fileID: 11500000, guid: a2db74f63fce669439be5e28ac6c7648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

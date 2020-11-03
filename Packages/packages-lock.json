@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "bagelmasterco.bagelpack": {
+      "version": "https://github.com/BagelMaster5000/BagelPack.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "0c1646851b8a2a076a1bb0b9f4de6e9a69c6a526"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
