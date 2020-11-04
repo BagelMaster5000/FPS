@@ -23,7 +23,7 @@ public class EnemySpawner : MonoBehaviour
         while (true)
         {
             transform.LookAt(playerToTrack);
-            if (Vector3.Dot(transform.TransformDirection(Vector3.forward), playerToTrack.TransformDirection(Vector3.forward)) > -0.5f)
+            if (Vector3.Dot(transform.TransformDirection(Vector3.forward), playerToTrack.TransformDirection(Vector3.forward)) > SPAWN_THRESHOLD)
             {
                 GameObject tempEnemy = (Random.value > 0.5f) ?
                     Instantiate(laserEnemyPrefab, transform.position + spawnOffset, transform.rotation) :

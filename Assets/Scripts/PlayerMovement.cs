@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -6,19 +7,26 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody rb;
     InputMaster inputs;
 
+    [Header("General Movement")]
     public float speed = 5;
     public float speedIncreaser = 0;
     public float gravity = -9.8f;
     public float jumpHeight = 3;
-
     Vector2 moveDirection;
     bool moving;
     bool movingBackwards;
 
+    [Header("Jumping")]
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
     bool isGrounded;
+
+    // Events
+    public event Action OnLanded;
+    public event Action OnJumped;
+    public event Action OnStartedMoving;
+    public event Action OnStoppedMoving;
 
     private void Awake()
     {
@@ -26,8 +34,10 @@ public class PlayerMovement : MonoBehaviour
         inputs = new InputMaster();
         inputs.Game.Moving.performed += ctx => RefreshPlayerSpeed(ctx.ReadValue<Vector2>());
         inputs.Game.Moving.performed += ctx => moving = true;
+        inputs.Game.Moving.performed += ctx => OnStartedMoving?.Invoke();
         inputs.Game.Moving.canceled += ctx => RefreshPlayerSpeed(Vector2.zero);
         inputs.Game.Moving.canceled += ctx => moving = false;
+        inputs.Game.Moving.canceled += ctx => OnStoppedMoving?.Invoke();
         inputs.Game.Jump.performed += ctx => Jump();
         inputs.Game.Moving.Enable();
         inputs.Game.Jump.Enable();
@@ -51,15 +61,22 @@ public class PlayerMovement : MonoBehaviour
     private void Jump()
     {
         if (isGrounded)
+        {
             rb.velocity += Vector3.up * Mathf.Sqrt(2 * Physics.gravity.magnitude * jumpHeight);
+            OnJumped?.Invoke();
+        }
     }
 
     IEnumerator MovePlayer()
     {
+        bool oldIsGrounded;
         while (true)
         {
             // Ground checking
+            oldIsGrounded = isGrounded;
             isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+            if (!oldIsGrounded && isGrounded)
+                OnLanded?.Invoke();
 
             speedIncreaser = moving ? Mathf.Lerp(speedIncreaser, 1, Time.deltaTime * 5) : 0;
             Vector3 move = (transform.right * moveDirection.x + transform.forward * moveDirection.y) * speed * speedIncreaser;
