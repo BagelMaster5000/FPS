@@ -11799,6 +11799,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 4dd5073a44763be499fc5932d0a6d319,
         type: 3}
+    - target: {fileID: 2801705360243101024, guid: ceed2beef489cb943b4641edec36cbfd,
+        type: 3}
+      propertyPath: timeMovingUntilFullSpeed
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 2801705360243101028, guid: ceed2beef489cb943b4641edec36cbfd,
         type: 3}
       propertyPath: OnDead.m_PersistentCalls.m_Calls.Array.size
@@ -11892,7 +11897,7 @@ PrefabInstance:
     - target: {fileID: 2801705360657761602, guid: ceed2beef489cb943b4641edec36cbfd,
         type: 3}
       propertyPath: baseLookSensitivity
-      value: 25
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 2801705360657761602, guid: ceed2beef489cb943b4641edec36cbfd,
         type: 3}

@@ -8,10 +8,11 @@ public class PlayerMovement : MonoBehaviour
     InputMaster inputs;
 
     [Header("General Movement")]
-    public float speed = 5;
-    public float speedIncreaser = 0;
-    public float gravity = -9.8f;
-    public float jumpHeight = 3;
+    [SerializeField] private float speed = 5;
+    [SerializeField] private float speedIncreaser = 0;
+    [SerializeField] private float timeMovingUntilFullSpeed = 0.5f;
+    [SerializeField] private float gravity = -9.8f;
+    [SerializeField] private float jumpHeight = 3;
     Vector2 moveDirection;
     bool moving;
     bool movingBackwards;
@@ -78,7 +79,9 @@ public class PlayerMovement : MonoBehaviour
             if (!oldIsGrounded && isGrounded)
                 OnLanded?.Invoke();
 
-            speedIncreaser = moving ? Mathf.Lerp(speedIncreaser, 1, Time.deltaTime * 5) : 0;
+            speedIncreaser = moving ? Mathf.Clamp(speedIncreaser + Time.deltaTime / timeMovingUntilFullSpeed, 0, 1) : 0;
+/*            if (speedIncreaser != 0)
+                print(speedIncreaser);*/
             Vector3 move = (transform.right * moveDirection.x + transform.forward * moveDirection.y) * speed * speedIncreaser;
             move.y = rb.velocity.y;
             rb.velocity = move;

@@ -107,8 +107,8 @@ public class FPSGeneral : MonoBehaviour
     void MoveStart() { playerMoveState = (playerMoveState == MoveState.STILL) ? MoveState.MOVING : playerMoveState; }
     void MoveEnd() { playerMoveState = (playerMoveState != MoveState.JUMPING) ? MoveState.STILL : playerMoveState; }
 
-    void JumpStart() { playerMoveState = MoveState.JUMPING; print("JUMP START"); }
-    void JumpEnd() { playerMoveState = (playerMoveState == MoveState.MOVING) ? MoveState.STILL : MoveState.MOVING; print("JUMP END"); }
+    void JumpStart() { playerMoveState = MoveState.JUMPING; }
+    void JumpEnd() { playerMoveState = (playerMoveState == MoveState.MOVING) ? MoveState.STILL : MoveState.MOVING; }
 
     IEnumerator RefreshSpeedAndFOV()
     {
