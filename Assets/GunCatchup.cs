@@ -2,7 +2,7 @@
 
 public class GunCatchup : MonoBehaviour
 {
-    [SerializeField] private Look looker;
+    [SerializeField] private POVCameraDetachedLook looker;
 
     [SerializeField] private Transform positionTarget;
     [SerializeField] private Transform rotationLeftRightTarget;
@@ -11,10 +11,17 @@ public class GunCatchup : MonoBehaviour
     float dummy1 = 0;
     float dummy2 = 0;
 
-    private void Update() { curDampValue = 1 - Mathf.Pow(0.99f, Time.deltaTime * 60); }
+    private void Update()
+    {
+        if (PauseMenu.gamePaused) return;
+
+        curDampValue = Mathf.Pow(0.06f, 1 / Time.deltaTime / 60);
+    }
 
     private void LateUpdate()
     {
+        if (PauseMenu.gamePaused) return;
+
         transform.position = positionTarget.position;
         transform.rotation = Quaternion.Euler(
             Vector3.right * Mathf.SmoothDampAngle(

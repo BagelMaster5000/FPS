@@ -27,7 +27,7 @@ public class PauseMenu : MonoBehaviour
         else
         {
             Pause();
-            ShowMenu(true);
+            ShowPauseMenu(true);
         }
     }
 
@@ -37,9 +37,7 @@ public class PauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
         gamePaused = false;
-        ShowMenu(false);
-
-        SetObjectPause();
+        ShowPauseMenu(false);
     }
 
     public void Pause()
@@ -48,26 +46,14 @@ public class PauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 0;
         gamePaused = true;
-
-        SetObjectPause();
     }
 
-    /* Shows or hides pause menu depending on parameter
-     * @param showMenu true if menu is to be shown
-     */
-    void ShowMenu(bool showMenu)
+    void ShowPauseMenu(bool showMenu)
     {
         pauseMenu.SetActive(showMenu);
     }
 
-    // Toggles pauses of objects
-    void SetObjectPause()
-    {
-        Look.paused = gamePaused;
-        FPSGeneral.paused = gamePaused;
-    }
-
-    public void ExitLevel()
+    public void ExitToTitle()
     {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;

@@ -17,6 +17,8 @@ public class EnemyGeneral : MonoBehaviour
     public UnityEvent OnHit;
     public UnityEvent OnKilled;
 
+    const float DESTINATION_REFRESH_INTERVAL = 0.15f;
+
     private void Awake()
     {
         agentComponent = GetComponent<NavMeshAgent>();
@@ -67,7 +69,7 @@ public class EnemyGeneral : MonoBehaviour
         while (true)
         {
             agentComponent.SetDestination(target.position);
-            yield return null;
+            yield return new WaitForSeconds(DESTINATION_REFRESH_INTERVAL);
         }
     }
 }

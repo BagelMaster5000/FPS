@@ -31,6 +31,7 @@ public class FPSGeneral : MonoBehaviour
 
     // Movement
     float baseSpeed;
+    bool sprintButtonDown;
     [SerializeField] float speedMultiplierSprint = 1.4f;
     [SerializeField] float speedMultiplierScope = 0.5f;
     [SerializeField] float speedMultiplierReload = 0.5f;
@@ -52,9 +53,6 @@ public class FPSGeneral : MonoBehaviour
     int curGunType = -1;
     int ammoCurrent = 0;
     int ammoTotal = 0;
-
-    // Pausing
-    public static bool paused;
 
     private void Awake()
     {
@@ -98,11 +96,16 @@ public class FPSGeneral : MonoBehaviour
         if (playerMovement.GetMoving() && !playerMovement.GetMovingBackwards() && playerMoveState == MoveState.MOVING &&
             playerGunState != GunState.RELOADING)
         {
+            sprintButtonDown = true;
+
             playerMoveState = MoveState.SPRINTING;
             playerGunState = GunState.NONE;
         }
     }
-    void SprintEnd() { playerMoveState = MoveState.STILL; }
+    void SprintEnd()
+    {
+        playerMoveState = MoveState.STILL;
+    }
 
     void MoveStart() { playerMoveState = (playerMoveState == MoveState.STILL) ? MoveState.MOVING : playerMoveState; }
     void MoveEnd() { playerMoveState = (playerMoveState != MoveState.JUMPING) ? MoveState.STILL : playerMoveState; }
@@ -114,6 +117,12 @@ public class FPSGeneral : MonoBehaviour
     {
         while (true)
         {
+            if (playerMoveState == MoveState.STILL || playerGunState == GunState.SCOPING)
+                sprintButtonDown = false;
+            if (playerMoveState == MoveState.MOVING && !playerMovement.GetMovingBackwards() &&
+                sprintButtonDown && playerGunState != GunState.RELOADING)
+                playerMoveState = MoveState.SPRINTING;
+
             if (playerMoveState == MoveState.SPRINTING)
             {
                 playerMovement.SetSpeed(baseSpeed * speedMultiplierSprint);
@@ -163,7 +172,14 @@ public class FPSGeneral : MonoBehaviour
 
     void Fire()
     {
-        if (paused || !HoldingGun() || ammoCurrent <= 0) return;
+        if (PauseMenu.gamePaused || !HoldingGun() || ammoCurrent <= 0) return;
+
+        if (playerMoveState == MoveState.SPRINTING)
+        {
+            sprintButtonDown = false;
+            playerMoveState = MoveState.MOVING;
+            return;
+        }
 
         if (playerGunState != GunState.RELOADING && playerMoveState != MoveState.SPRINTING)
         {
@@ -189,7 +205,7 @@ public class FPSGeneral : MonoBehaviour
     // Waits until reload is finished before allowing other actions
     IEnumerator Reload()
     {
-        if (paused || !HoldingGun()) yield break;
+        if (PauseMenu.gamePaused || !HoldingGun()) yield break;
 
         if (playerGunState != GunState.RELOADING)
         {

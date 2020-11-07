@@ -8,9 +8,6 @@ public class FPSAnimationManager : MonoBehaviour
     public Animator gunHolderAnimator;
     Animator gunAnimator;
 
-    // Pausing
-    public static bool paused;
-
     private void Awake()
     {
         fpsGeneral = GetComponent<FPSGeneral>();
@@ -22,7 +19,7 @@ public class FPSAnimationManager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (paused) return;
+        if (PauseMenu.gamePaused) return;
 
         // Updating continuous animations
         gunHolderAnimator.SetBool("Scoping", fpsGeneral.playerGunState == FPSGeneral.GunState.SCOPING);
