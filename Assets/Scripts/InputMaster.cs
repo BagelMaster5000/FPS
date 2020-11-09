@@ -111,6 +111,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Swap Gun"",
+                    ""type"": ""Button"",
+                    ""id"": ""dc10a9ac-2bdf-4b26-8c02-69f99fd97145"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -311,6 +319,28 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""action"": ""Reload"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""709429fb-acdb-4365-8359-538bcf3fe9d9"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Swap Gun"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c953ce2c-aad8-4ba1-8c8b-afd0b505a3fe"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Swap Gun"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -357,6 +387,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_Game_Scope = m_Game.FindAction("Scope", throwIfNotFound: true);
         m_Game_Fire = m_Game.FindAction("Fire", throwIfNotFound: true);
         m_Game_Reload = m_Game.FindAction("Reload", throwIfNotFound: true);
+        m_Game_SwapGun = m_Game.FindAction("Swap Gun", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -446,6 +477,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_Game_Scope;
     private readonly InputAction m_Game_Fire;
     private readonly InputAction m_Game_Reload;
+    private readonly InputAction m_Game_SwapGun;
     public struct GameActions
     {
         private @InputMaster m_Wrapper;
@@ -457,6 +489,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Scope => m_Wrapper.m_Game_Scope;
         public InputAction @Fire => m_Wrapper.m_Game_Fire;
         public InputAction @Reload => m_Wrapper.m_Game_Reload;
+        public InputAction @SwapGun => m_Wrapper.m_Game_SwapGun;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -487,6 +520,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Reload.started -= m_Wrapper.m_GameActionsCallbackInterface.OnReload;
                 @Reload.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnReload;
                 @Reload.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnReload;
+                @SwapGun.started -= m_Wrapper.m_GameActionsCallbackInterface.OnSwapGun;
+                @SwapGun.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnSwapGun;
+                @SwapGun.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnSwapGun;
             }
             m_Wrapper.m_GameActionsCallbackInterface = instance;
             if (instance != null)
@@ -512,6 +548,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Reload.started += instance.OnReload;
                 @Reload.performed += instance.OnReload;
                 @Reload.canceled += instance.OnReload;
+                @SwapGun.started += instance.OnSwapGun;
+                @SwapGun.performed += instance.OnSwapGun;
+                @SwapGun.canceled += instance.OnSwapGun;
             }
         }
     }
@@ -547,5 +586,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnScope(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
+        void OnSwapGun(InputAction.CallbackContext context);
     }
 }

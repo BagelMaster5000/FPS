@@ -22,8 +22,9 @@ public class FPSAnimationManager : MonoBehaviour
         if (PauseMenu.gamePaused) return;
 
         // Updating continuous animations
-        gunHolderAnimator.SetBool("Scoping", fpsGeneral.playerGunState == FPSGeneral.GunState.SCOPING);
-        gunHolderAnimator.SetBool("Running", fpsGeneral.playerMoveState == FPSGeneral.MoveState.SPRINTING);
+        gunHolderAnimator.SetBool("Swapping", fpsGeneral.curGunState == FPSGeneral.GunState.SWAPPING);
+        gunHolderAnimator.SetBool("Scoping", fpsGeneral.curGunState == FPSGeneral.GunState.SCOPING);
+        gunHolderAnimator.SetBool("Running", fpsGeneral.curMoveState == FPSGeneral.MoveState.SPRINTING);
     }
 
     void GotNewGun() { SetGunAnimator(fpsGeneral.GetCurGunAnimator()); }

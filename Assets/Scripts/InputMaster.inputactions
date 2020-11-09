@@ -98,6 +98,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Swap Gun",
+                    "type": "Button",
+                    "id": "dc10a9ac-2bdf-4b26-8c02-69f99fd97145",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -296,6 +304,28 @@
                     "processors": "",
                     "groups": "Controller",
                     "action": "Reload",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "709429fb-acdb-4365-8359-538bcf3fe9d9",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "Swap Gun",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c953ce2c-aad8-4ba1-8c8b-afd0b505a3fe",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Swap Gun",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

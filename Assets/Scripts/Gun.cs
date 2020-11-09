@@ -5,6 +5,6 @@ using UnityEngine;
 public class Gun
 {
     [HideInInspector] public string name = "Gun";
-    public GunType gunType;
+    public GunProperties gunProperties;
     public Animator gunAnimator;
 }

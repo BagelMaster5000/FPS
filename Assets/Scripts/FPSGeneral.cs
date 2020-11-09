@@ -6,28 +6,16 @@ using UnityEngine;
 public class FPSGeneral : MonoBehaviour
 {
     // States
-    public enum GunState { NONE, RELOADING, SCOPING };
-    [HideInInspector] public GunState playerGunState;
-    public enum MoveState { STILL, MOVING, SPRINTING, JUMPING };
-    [HideInInspector] public MoveState playerMoveState;
+    public enum GunState { IDLE, RELOADING, SCOPING, SWAPPING};
+    [HideInInspector] public GunState curGunState;
+    public enum MoveState { IDLE, MOVING, SPRINTING, JUMPING };
+    [HideInInspector] public MoveState curMoveState;
 
     // General
     [Header("General")]
     [SerializeField] Camera playerCam;
     InputMaster inputs;
     PlayerMovement playerMovement;
-
-    // Events
-    [Header("Events")]
-    public BoolEvent OnGunHitTarget; // True when killing blow
-    public FloatEvent OnDamageTaken; // float is current health 0-100
-    public FloatEvent OnHealthRegenerated; // float is current health 0-100
-    public StringEvent OnCurrentAmmoChanged; // string amount of ammo in magazine
-    public StringEvent OnTotalAmmoChanged; // string amount of total ammo
-    public VoidEvent OnDead;
-    public event Action OnGunFired;
-    public event Action OnGotNewGun;
-    public event Action OnReloadStarted;
 
     // Movement
     float baseSpeed;
@@ -46,14 +34,38 @@ public class FPSGeneral : MonoBehaviour
     [SerializeField] float healthRegenDelay = 4;
     float healthRegenDelayer;
     [SerializeField] float healthRegenPerSecond = 15;
+    public FloatEvent OnDamageTaken; // float is current health 0-100
+    public FloatEvent OnHealthRegenerated; // float is current health 0-100
+    public VoidEvent OnDead;
 
     // Guns
-    [Header("Guns")]
+    [Header("Guns: Pistol, Shotgun")]
     [SerializeField] Gun[] allGuns;
-    int curGunType = -1;
-    int ammoCurrent = 0;
-    int ammoTotal = 0;
+    public BoolEvent OnGunHitTarget; // True when killing blow
+    public StringEvent OnCurrentAmmoChanged; // string amount of ammo in magazine
+    public StringEvent OnTotalAmmoChanged; // string amount of total ammo
+    public event Action OnGunFired;
+    public event Action OnGotNewGun;
+    public event Action OnReloadStarted;
+    int curGunSlot;
+    public enum GunType { NONE = -1, PISTOL = 0, SHOTGUN = 1 };
+    public struct HeldGunSlot
+    {
+        public GunType gunType;
+        public int ammoInMag;
+        public int ammoTotal;
+    }
+    [Range(1, 6)]
+    [SerializeField] int numSlots = 2;
+    HeldGunSlot[] heldGunSlots;
+    Coroutine changingSlot;
+    bool swapping;
+    const float SWAP_MOMENT = 0.4f;
+    const float SWAP_TOTAL_DURATION = 0.75f;
+    public VoidEvent OnSwappingStarted;
+    public VoidEvent OnSwappingEnded;
 
+    #region Setup
     private void Awake()
     {
         inputs = new InputMaster();
@@ -62,6 +74,8 @@ public class FPSGeneral : MonoBehaviour
         inputs.Game.Sprinting.started += ctx => SprintStart();
         inputs.Game.Scope.started += ctx => StartScope();
         inputs.Game.Scope.canceled += ctx => EndScope();
+        inputs.Game.SwapGun.started += ctx => ChangeActiveSlot();
+        inputs.Game.SwapGun.Enable();
         inputs.Game.Reload.Enable();
         inputs.Game.Fire.Enable();
         inputs.Game.Sprinting.Enable();
@@ -77,6 +91,7 @@ public class FPSGeneral : MonoBehaviour
 
     private void OnDisable()
     {
+        inputs.Game.SwapGun.Disable();
         inputs.Game.Reload.Disable();
         inputs.Game.Fire.Disable();
         inputs.Game.Sprinting.Disable();
@@ -85,55 +100,67 @@ public class FPSGeneral : MonoBehaviour
 
     private void Start()
     {
+        heldGunSlots = new HeldGunSlot[numSlots];
+        for (int n = 0; n < heldGunSlots.Length; n++)
+        {
+            heldGunSlots[n].gunType = GunType.NONE;
+            heldGunSlots[n].ammoInMag = -1;
+            heldGunSlots[n].ammoTotal = -1;
+        }
+        curGunSlot = 0;
+        RefreshGunVisibility();
+
         StartCoroutine(HealthRegeneration());
         StartCoroutine(RefreshSpeedAndFOV());
-        ObtainGun(0);
+        //ObtainGun(0);
     }
+    #endregion
 
     #region Movement Extra
     void SprintStart()
     {
-        if (playerMovement.GetMoving() && !playerMovement.GetMovingBackwards() && playerMoveState == MoveState.MOVING &&
-            playerGunState != GunState.RELOADING)
+        if (playerMovement.GetMoving() && !playerMovement.GetMovingBackwards() && curMoveState == MoveState.MOVING &&
+            curGunState != GunState.RELOADING && !swapping)
         {
             sprintButtonDown = true;
 
-            playerMoveState = MoveState.SPRINTING;
-            playerGunState = GunState.NONE;
+            curMoveState = MoveState.SPRINTING;
+            curGunState = GunState.IDLE;
         }
     }
-    void SprintEnd()
-    {
-        playerMoveState = MoveState.STILL;
-    }
+    void SprintEnd() { curMoveState = MoveState.IDLE; }
 
-    void MoveStart() { playerMoveState = (playerMoveState == MoveState.STILL) ? MoveState.MOVING : playerMoveState; }
-    void MoveEnd() { playerMoveState = (playerMoveState != MoveState.JUMPING) ? MoveState.STILL : playerMoveState; }
+    void MoveStart() { curMoveState = (curMoveState == MoveState.IDLE) ? MoveState.MOVING : curMoveState; }
+    void MoveEnd() { curMoveState = (curMoveState != MoveState.JUMPING) ? MoveState.IDLE : curMoveState; }
 
-    void JumpStart() { playerMoveState = MoveState.JUMPING; }
-    void JumpEnd() { playerMoveState = (playerMoveState == MoveState.MOVING) ? MoveState.STILL : MoveState.MOVING; }
+    void JumpStart() { curMoveState = MoveState.JUMPING; }
+    void JumpEnd() { curMoveState = (curMoveState == MoveState.MOVING) ? MoveState.IDLE : MoveState.MOVING; }
 
     IEnumerator RefreshSpeedAndFOV()
     {
         while (true)
         {
-            if (playerMoveState == MoveState.STILL || playerGunState == GunState.SCOPING)
+            if (curMoveState == MoveState.IDLE || curGunState == GunState.SCOPING)
                 sprintButtonDown = false;
-            if (playerMoveState == MoveState.MOVING && !playerMovement.GetMovingBackwards() &&
-                sprintButtonDown && playerGunState != GunState.RELOADING)
-                playerMoveState = MoveState.SPRINTING;
+            if (curMoveState == MoveState.MOVING && !playerMovement.GetMovingBackwards() &&
+                sprintButtonDown && curGunState != GunState.RELOADING && !swapping)
+                curMoveState = MoveState.SPRINTING;
 
-            if (playerMoveState == MoveState.SPRINTING)
+            if (curMoveState == MoveState.SPRINTING)
             {
                 playerMovement.SetSpeed(baseSpeed * speedMultiplierSprint);
                 playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, fovSprint, 1 / fovLerpFactor);
             }
-            else if (playerGunState == GunState.SCOPING)
+            else if (curGunState == GunState.SCOPING && heldGunSlots[curGunSlot].gunType != GunType.NONE)
             {
                 playerMovement.SetSpeed(baseSpeed * speedMultiplierScope);
-                playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, fovStandard - allGuns[curGunType].gunType.scopeAmount, 1 / fovLerpFactor);
+                playerCam.fieldOfView =
+                    Mathf.Lerp(
+                        playerCam.fieldOfView,
+                        fovStandard - allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.scopeAmount,
+                        1 / fovLerpFactor);
             }
-            else if (playerGunState == GunState.RELOADING)
+            else if (curGunState == GunState.RELOADING && heldGunSlots[curGunSlot].gunType != GunType.NONE)
             {
                 playerMovement.SetSpeed(baseSpeed * speedMultiplierReload);
                 playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, fovStandard, 1 / fovLerpFactor);
@@ -149,43 +176,109 @@ public class FPSGeneral : MonoBehaviour
     #endregion
 
     #region Guns
-    void ObtainGun(int gunType)
+    public void AddGun(GunType gunToAdd)
     {
-        SetCurGunType(gunType);
-        ammoCurrent = allGuns[gunType].gunType.ammoMagazineSize;
-        ammoTotal = allGuns[gunType].gunType.ammoStarting;
-        OnCurrentAmmoChanged.Invoke(ammoCurrent.ToString());
-        OnTotalAmmoChanged.Invoke(ammoTotal.ToString());
+        if (changingSlot != null)
+            StopCoroutine(changingSlot);
+        //SetCurGunType(gunType);
+        if (heldGunSlots[curGunSlot].gunType == GunType.NONE)
+        {
+            StartCoroutine(AddGunAnimator(gunToAdd, curGunSlot));
+            RefreshGunVisibility();
+        }
+    }
+
+    IEnumerator AddGunAnimator(GunType gunToSwapIn, int slot = -1)
+    {
+        if (slot == -1)
+        {
+            slot = curGunSlot + 1;
+            if (slot >= numSlots)
+                slot = 0;
+        }
+
+        curGunState = GunState.SWAPPING;
+        curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
+        swapping = true;
+        yield return new WaitForSeconds(SWAP_MOMENT);
+        heldGunSlots[slot].gunType = gunToSwapIn;
+        heldGunSlots[slot].ammoInMag = allGuns[(int)gunToSwapIn].gunProperties.ammoMagazineSize;
+        heldGunSlots[slot].ammoTotal = allGuns[(int)gunToSwapIn].gunProperties.ammoStarting;
+        OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag.ToString());
+        OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal.ToString());
+        RefreshGunVisibility();
+        yield return new WaitForSeconds(SWAP_TOTAL_DURATION - SWAP_MOMENT);
+        curGunState = GunState.IDLE;
+        swapping = false;
+    }
+
+    void ChangeActiveSlot(int slot = -1)
+    {
+        if (curGunState == GunState.RELOADING || curGunState == GunState.SWAPPING) return;
+
+        if (slot == -1)
+        {
+            slot = curGunSlot + 1;
+            if (slot >= numSlots)
+                slot = 0;
+        }
+        changingSlot = StartCoroutine(ChangeActiveSlotAnimator(slot));
+    }
+
+    IEnumerator ChangeActiveSlotAnimator(int slot)
+    {
+        if (slot < 0 || slot >= numSlots)
+            Debug.LogError("Trying to change to invalid slot");
+        curGunState = GunState.SWAPPING;
+        curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
+        swapping = true;
+        yield return new WaitForSeconds(SWAP_MOMENT);
+        curGunSlot = slot;
+        OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag.ToString());
+        OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal.ToString());
+        RefreshGunVisibility();
+        yield return new WaitForSeconds(SWAP_TOTAL_DURATION - SWAP_MOMENT);
+        curGunState = GunState.IDLE;
+        swapping = false;
+    }
+
+    void RefreshGunVisibility()
+    {
+        for (int n = 0; n < allGuns.Length; n++)
+        {
+            allGuns[n].gunAnimator.gameObject.SetActive((int)heldGunSlots[curGunSlot].gunType == n);
+            OnGotNewGun.Invoke();
+        }
     }
 
     void StartScope()
     {
-        if (HoldingGun() && playerGunState == GunState.NONE)
+        if (HoldingGun() && curGunState == GunState.IDLE)
         {
-            playerGunState = GunState.SCOPING;
-            playerMoveState = (playerMoveState == MoveState.SPRINTING && playerMoveState != MoveState.JUMPING) ? MoveState.MOVING : playerMoveState;
+            curGunState = GunState.SCOPING;
+            curMoveState = (curMoveState == MoveState.SPRINTING && curMoveState != MoveState.JUMPING) ? MoveState.MOVING : curMoveState;
         }
     }
 
-    void EndScope() { playerGunState = (playerGunState == GunState.SCOPING) ?
-            GunState.NONE : playerGunState; }
+    void EndScope() { curGunState = (curGunState == GunState.SCOPING) ?
+            GunState.IDLE : curGunState; }
 
     void Fire()
     {
-        if (PauseMenu.gamePaused || !HoldingGun() || ammoCurrent <= 0) return;
+        if (PauseMenu.gamePaused || !HoldingGun() || heldGunSlots[curGunSlot].ammoInMag <= 0) return;
 
-        if (playerMoveState == MoveState.SPRINTING)
+        if (curMoveState == MoveState.SPRINTING)
         {
             sprintButtonDown = false;
-            playerMoveState = MoveState.MOVING;
+            curMoveState = MoveState.MOVING;
             return;
         }
 
-        if (playerGunState != GunState.RELOADING && playerMoveState != MoveState.SPRINTING)
+        if (curGunState != GunState.RELOADING && !swapping && curMoveState != MoveState.SPRINTING)
         {
             OnGunFired.Invoke();
-            ammoCurrent--;
-            OnCurrentAmmoChanged.Invoke(ammoCurrent.ToString());
+            heldGunSlots[curGunSlot].ammoInMag--;
+            OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
 
             Vector3 rayDirection = playerCam.transform.forward;
             RaycastHit hit;
@@ -196,7 +289,7 @@ public class FPSGeneral : MonoBehaviour
                     // Enemy is knocked-back when hit
                     hit.collider.attachedRigidbody.AddForce(rayDirection * 8, ForceMode.Impulse);
                     // Enemy takes damage and hitmarker appears. Hitmarker displays either white or red depending on if enemy was killed.
-                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(allGuns[curGunType].gunType.damage));
+                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.damage));
                 }
             }
         }
@@ -207,26 +300,30 @@ public class FPSGeneral : MonoBehaviour
     {
         if (PauseMenu.gamePaused || !HoldingGun()) yield break;
 
-        if (playerGunState != GunState.RELOADING)
+        if (curGunState != GunState.RELOADING && !swapping)
         {
-            playerGunState = GunState.RELOADING;
-            playerMoveState = (playerMoveState == MoveState.SPRINTING) ? MoveState.MOVING : playerMoveState;
+            curGunState = GunState.RELOADING;
+            curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
 
             // Starting reload animation
             OnReloadStarted.Invoke();
-            yield return new WaitForSecondsRealtime(allGuns[curGunType].gunType.reloadLength);
+            yield return new WaitForSecondsRealtime(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.reloadLength);
 
             // Reload executes
-            int ammoAdding = Mathf.Clamp((allGuns[curGunType].gunType.ammoMagazineSize - ammoCurrent), 0, ammoTotal);
-            ammoCurrent += ammoAdding;
-            ammoTotal -= ammoAdding;
-            OnCurrentAmmoChanged.Invoke(ammoCurrent.ToString());
-            OnTotalAmmoChanged.Invoke(ammoTotal.ToString());
-            playerGunState = GunState.NONE;
+            int ammoAdding =
+                Mathf.Clamp(
+                    allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize - heldGunSlots[curGunSlot].ammoInMag,
+                    0,
+                    heldGunSlots[curGunSlot].ammoTotal);
+            heldGunSlots[curGunSlot].ammoInMag += ammoAdding;
+            heldGunSlots[curGunSlot].ammoTotal -= ammoAdding;
+            OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
+            OnTotalAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoTotal.ToString());
+            curGunState = GunState.IDLE;
         }
     }
 
-    bool HoldingGun() { return curGunType != -1; }
+    bool HoldingGun() { return heldGunSlots[curGunSlot].gunType != GunType.NONE; }
     #endregion
 
     #region Health
@@ -255,17 +352,14 @@ public class FPSGeneral : MonoBehaviour
     #endregion
 
     #region Mutators and Accessors
-    public void SetCurGunType(int setGunType)
+
+    //public int GetCurGunType() { return curGunSlot; }
+    public Animator GetCurGunAnimator()
     {
-        if (setGunType < -1 || setGunType >= allGuns.Length) return;
-
-        curGunType = setGunType;
-        OnGotNewGun.Invoke();
-        for (int n = 0; n < allGuns.Length; n++)
-            allGuns[n].gunAnimator.gameObject.SetActive(n == curGunType);
+        if (heldGunSlots[curGunSlot].gunType != GunType.NONE)
+            return allGuns[(int)heldGunSlots[curGunSlot].gunType].gunAnimator;
+        else
+            return null;
     }
-
-    public int GetCurGunType() { return curGunType; }
-    public Animator GetCurGunAnimator() { return allGuns[curGunType].gunAnimator; }
     #endregion
 }

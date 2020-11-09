@@ -1,0 +1,4 @@
+•Sprinting should carry over sprinting speed
+•Fix buginess with gun swapping
+•Fix gun clipping through walls
+•Shotgun

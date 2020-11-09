@@ -12,11 +12,13 @@ public class GunEffects : MonoBehaviour
         gunShot.audioSource = gameObject.AddComponent<AudioSource>();
         gunShot.audioSource.clip = gunShot.audioClip;
         gunShot.audioSource.volume = gunShot.volume;
+        gunShot.audioSource.playOnAwake = false;
         foreach (Sound reloadSound in reloadSounds)
         {
             reloadSound.audioSource = gameObject.AddComponent<AudioSource>();
             reloadSound.audioSource.clip = reloadSound.audioClip;
             reloadSound.audioSource.volume = reloadSound.volume;
+            reloadSound.audioSource.playOnAwake = false;
         }
     }
 

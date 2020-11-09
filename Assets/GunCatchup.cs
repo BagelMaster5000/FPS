@@ -8,8 +8,8 @@ public class GunCatchup : MonoBehaviour
     [SerializeField] private Transform rotationLeftRightTarget;
     [SerializeField] private Transform rotationUpDownTarget;
     float curDampValue;
-    float dummy1 = 0;
-    float dummy2 = 0;
+    float velocityUpDown = 0;
+    float velocityLeftRight = 0;
 
     private void Update()
     {
@@ -27,12 +27,12 @@ public class GunCatchup : MonoBehaviour
             Vector3.right * Mathf.SmoothDampAngle(
                 rotationUpDownTarget.eulerAngles.x,
                 transform.rotation.eulerAngles.x,
-                ref dummy1,
+                ref velocityUpDown,
                 curDampValue) +
             Vector3.up * Mathf.SmoothDampAngle(
                 rotationLeftRightTarget.eulerAngles.y,
                 transform.rotation.eulerAngles.y,
-                ref dummy2,
+                ref velocityLeftRight,
                 curDampValue));
     }
 }
