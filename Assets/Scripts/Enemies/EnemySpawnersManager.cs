@@ -13,10 +13,16 @@ public class EnemySpawnersManager : MonoBehaviour
     public List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
 
 #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        enemySpawners.Clear();
+        foreach (EnemySpawner spawner in FindObjectsOfType<EnemySpawner>().ToList())
+            if (spawner.gameObject.activeInHierarchy)
+                enemySpawners.Add(spawner);
+    }
+
     private void OnDrawGizmosSelected()
     {
-        enemySpawners = FindObjectsOfType<EnemySpawner>().ToList();
-
         Vector3 offset;
         foreach (EnemySpawner spawner in enemySpawners)
         {
