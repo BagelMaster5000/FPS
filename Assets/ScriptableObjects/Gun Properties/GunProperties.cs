@@ -3,7 +3,8 @@
 [CreateAssetMenu(fileName = "New Gun", menuName = "Gun")]
 public class GunProperties : ScriptableObject
 {
-    public string gunName;
+    public FPSGeneral.GunType gunType;
+    public float gunPrice;
     public int ammoMagazineSize;
     public int ammoStarting;
     public int ammoMax;

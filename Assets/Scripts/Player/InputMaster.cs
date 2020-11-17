@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/InputMaster.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/Player/InputMaster.inputactions'
 
 using System;
 using System.Collections;
@@ -116,6 +116,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""name"": ""Swap Gun"",
                     ""type"": ""Button"",
                     ""id"": ""dc10a9ac-2bdf-4b26-8c02-69f99fd97145"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""c2281bad-519c-4d00-a3fd-2562af865529"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -337,8 +345,30 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Gamepad>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Controller"",
                     ""action"": ""Swap Gun"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7c29bf3d-cabb-4724-984b-c1625f0d5dc3"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9641d7b8-8e0d-4b61-9d4f-103dbbe6a9e2"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Controller"",
+                    ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -388,6 +418,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_Game_Fire = m_Game.FindAction("Fire", throwIfNotFound: true);
         m_Game_Reload = m_Game.FindAction("Reload", throwIfNotFound: true);
         m_Game_SwapGun = m_Game.FindAction("Swap Gun", throwIfNotFound: true);
+        m_Game_Interact = m_Game.FindAction("Interact", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -478,6 +509,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_Game_Fire;
     private readonly InputAction m_Game_Reload;
     private readonly InputAction m_Game_SwapGun;
+    private readonly InputAction m_Game_Interact;
     public struct GameActions
     {
         private @InputMaster m_Wrapper;
@@ -490,6 +522,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Fire => m_Wrapper.m_Game_Fire;
         public InputAction @Reload => m_Wrapper.m_Game_Reload;
         public InputAction @SwapGun => m_Wrapper.m_Game_SwapGun;
+        public InputAction @Interact => m_Wrapper.m_Game_Interact;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -523,6 +556,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @SwapGun.started -= m_Wrapper.m_GameActionsCallbackInterface.OnSwapGun;
                 @SwapGun.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnSwapGun;
                 @SwapGun.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnSwapGun;
+                @Interact.started -= m_Wrapper.m_GameActionsCallbackInterface.OnInteract;
+                @Interact.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnInteract;
+                @Interact.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnInteract;
             }
             m_Wrapper.m_GameActionsCallbackInterface = instance;
             if (instance != null)
@@ -551,6 +587,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @SwapGun.started += instance.OnSwapGun;
                 @SwapGun.performed += instance.OnSwapGun;
                 @SwapGun.canceled += instance.OnSwapGun;
+                @Interact.started += instance.OnInteract;
+                @Interact.performed += instance.OnInteract;
+                @Interact.canceled += instance.OnInteract;
             }
         }
     }
@@ -587,5 +626,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnFire(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
         void OnSwapGun(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
     }
 }

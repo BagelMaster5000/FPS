@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fe8e2bdfcfcfca4fb179b4aeacf2fc3, type: 3}
   m_Name: Shotgun
   m_EditorClassIdentifier: 
-  gunName: Shotgun
+  gunType: 1
+  gunPrice: 500
   ammoMagazineSize: 2
   ammoStarting: 24
   ammoMax: 48

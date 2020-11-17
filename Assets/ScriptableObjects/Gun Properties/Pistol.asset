@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fe8e2bdfcfcfca4fb179b4aeacf2fc3, type: 3}
   m_Name: Pistol
   m_EditorClassIdentifier: 
-  gunName: Pistol
+  gunType: 0
+  gunPrice: 150
   ammoMagazineSize: 12
   ammoStarting: 98
   ammoMax: 180

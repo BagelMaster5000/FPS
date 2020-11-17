@@ -47,7 +47,6 @@ public class FPSGeneral : MonoBehaviour
     public event Action OnGunFired;
     public event Action OnGotNewGun;
     public event Action OnReloadStarted;
-    int curGunSlot;
     public enum GunType { NONE = -1, PISTOL = 0, SHOTGUN = 1 };
     public struct HeldGunSlot
     {
@@ -55,6 +54,7 @@ public class FPSGeneral : MonoBehaviour
         public int ammoInMag;
         public int ammoTotal;
     }
+    int curGunSlot;
     [Range(1, 6)]
     [SerializeField] int numSlots = 2;
     HeldGunSlot[] heldGunSlots;
@@ -64,6 +64,10 @@ public class FPSGeneral : MonoBehaviour
     const float SWAP_TOTAL_DURATION = 0.75f;
     public VoidEvent OnSwappingStarted;
     public VoidEvent OnSwappingEnded;
+
+    // Purchasing
+    [Header("Purchasing")]
+    public FloatEvent OnPurchase;
 
     #region Setup
     private void Awake()
@@ -75,11 +79,6 @@ public class FPSGeneral : MonoBehaviour
         inputs.Game.Scope.started += ctx => StartScope();
         inputs.Game.Scope.canceled += ctx => EndScope();
         inputs.Game.SwapGun.started += ctx => ChangeActiveSlot();
-        inputs.Game.SwapGun.Enable();
-        inputs.Game.Reload.Enable();
-        inputs.Game.Fire.Enable();
-        inputs.Game.Sprinting.Enable();
-        inputs.Game.Scope.Enable();
 
         playerMovement = GetComponent<PlayerMovement>();
         baseSpeed = playerMovement.GetSpeed();
@@ -89,6 +88,14 @@ public class FPSGeneral : MonoBehaviour
         playerMovement.OnLanded += JumpEnd;
     }
 
+    private void OnEnable()
+    {
+        inputs.Game.SwapGun.Enable();
+        inputs.Game.Reload.Enable();
+        inputs.Game.Fire.Enable();
+        inputs.Game.Sprinting.Enable();
+        inputs.Game.Scope.Enable();
+    }
     private void OnDisable()
     {
         inputs.Game.SwapGun.Disable();
@@ -115,7 +122,6 @@ public class FPSGeneral : MonoBehaviour
         //ObtainGun(0);
     }
     #endregion
-
     #region Movement Extra
     void SprintStart()
     {
@@ -174,17 +180,27 @@ public class FPSGeneral : MonoBehaviour
         }
     }
     #endregion
-
     #region Guns
     public void AddGun(GunType gunToAdd)
     {
         if (changingSlot != null)
             StopCoroutine(changingSlot);
-        //SetCurGunType(gunType);
+
         if (heldGunSlots[curGunSlot].gunType == GunType.NONE)
-        {
             StartCoroutine(AddGunAnimator(gunToAdd, curGunSlot));
-            RefreshGunVisibility();
+        else
+        {
+            bool foundEmptySlot = false;
+            for (int slotChecker = 0; slotChecker < numSlots; slotChecker++)
+            {
+                if (!foundEmptySlot && heldGunSlots[slotChecker].gunType == GunType.NONE)
+                {
+                    StartCoroutine(AddGunAnimator(gunToAdd, slotChecker));
+                    foundEmptySlot = true;
+                }
+            }
+            if (!foundEmptySlot)
+                StartCoroutine(AddGunAnimator(gunToAdd, curGunSlot));
         }
     }
 
@@ -197,24 +213,32 @@ public class FPSGeneral : MonoBehaviour
                 slot = 0;
         }
 
+        // Gun put down
         curGunState = GunState.SWAPPING;
         curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
         swapping = true;
         yield return new WaitForSeconds(SWAP_MOMENT);
+
+        // Swap gun moment
+        curGunSlot = slot;
         heldGunSlots[slot].gunType = gunToSwapIn;
         heldGunSlots[slot].ammoInMag = allGuns[(int)gunToSwapIn].gunProperties.ammoMagazineSize;
         heldGunSlots[slot].ammoTotal = allGuns[(int)gunToSwapIn].gunProperties.ammoStarting;
         OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag.ToString());
         OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal.ToString());
+
         RefreshGunVisibility();
         yield return new WaitForSeconds(SWAP_TOTAL_DURATION - SWAP_MOMENT);
+
+        // Gun put up
         curGunState = GunState.IDLE;
         swapping = false;
     }
 
     void ChangeActiveSlot(int slot = -1)
     {
-        if (curGunState == GunState.RELOADING || curGunState == GunState.SWAPPING) return;
+        if (curGunState == GunState.RELOADING || curGunState == GunState.SWAPPING)
+            return;
 
         if (slot == -1)
         {
@@ -292,40 +316,43 @@ public class FPSGeneral : MonoBehaviour
                     OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.damage));
                 }
             }
+            if (heldGunSlots[curGunSlot].ammoInMag == 0)
+                StartCoroutine(Reload());
         }
     }
 
     // Waits until reload is finished before allowing other actions
     IEnumerator Reload()
     {
-        if (PauseMenu.gamePaused || !HoldingGun()) yield break;
+        if (PauseMenu.gamePaused || !HoldingGun() || curGunState == GunState.RELOADING || swapping ||
+            heldGunSlots[curGunSlot].ammoInMag >= allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize)
+            yield break;
 
-        if (curGunState != GunState.RELOADING && !swapping)
-        {
-            curGunState = GunState.RELOADING;
-            curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
+        curGunState = GunState.RELOADING;
+        curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
 
-            // Starting reload animation
-            OnReloadStarted.Invoke();
-            yield return new WaitForSecondsRealtime(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.reloadLength);
+        // Starting reload animation
+        OnReloadStarted.Invoke();
+        yield return new WaitForSecondsRealtime(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.reloadLength);
 
-            // Reload executes
-            int ammoAdding =
-                Mathf.Clamp(
-                    allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize - heldGunSlots[curGunSlot].ammoInMag,
-                    0,
-                    heldGunSlots[curGunSlot].ammoTotal);
-            heldGunSlots[curGunSlot].ammoInMag += ammoAdding;
-            heldGunSlots[curGunSlot].ammoTotal -= ammoAdding;
-            OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
-            OnTotalAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoTotal.ToString());
-            curGunState = GunState.IDLE;
-        }
+        // Reload executes
+        int ammoAdding =
+            Mathf.Clamp(
+                allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize - heldGunSlots[curGunSlot].ammoInMag,
+                0,
+                heldGunSlots[curGunSlot].ammoTotal);
+        heldGunSlots[curGunSlot].ammoInMag += ammoAdding;
+        heldGunSlots[curGunSlot].ammoTotal -= ammoAdding;
+        OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
+        OnTotalAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoTotal.ToString());
+        curGunState = GunState.IDLE;
     }
 
     bool HoldingGun() { return heldGunSlots[curGunSlot].gunType != GunType.NONE; }
     #endregion
-
+    #region Purchasing
+    public void PurchaseGun(GunType gunType, float price) { AddGun(gunType); OnPurchase.Invoke(price); }
+    #endregion
     #region Health
     public void TakeDamage(float damageAmt)
     {
@@ -350,7 +377,6 @@ public class FPSGeneral : MonoBehaviour
         }
     }
     #endregion
-
     #region Mutators and Accessors
 
     //public int GetCurGunType() { return curGunSlot; }
@@ -361,5 +387,6 @@ public class FPSGeneral : MonoBehaviour
         else
             return null;
     }
+    public Camera GetPlayerCamera() { return playerCam; }
     #endregion
 }
