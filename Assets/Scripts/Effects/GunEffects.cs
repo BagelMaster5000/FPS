@@ -3,9 +3,14 @@ using UnityEngine;
 
 public class GunEffects : MonoBehaviour
 {
-    public SpriteRenderer muzzleFlash;
-    public Sound gunShot;
-    public Sound[] reloadSounds;
+    [SerializeField] FPSGeneral player;
+
+    [Space(10)]
+    [SerializeField] SpriteRenderer muzzleFlash;
+    [SerializeField] Sound gunShot;
+    [SerializeField] Sound[] reloadSounds;
+
+    public FloatEvent OnCameraShake;
 
     private void Start()
     {
@@ -24,12 +29,19 @@ public class GunEffects : MonoBehaviour
 
     public void Flash() { StartCoroutine(MuzzleFlash()); }
 
-    public void Shot() { gunShot.audioSource.Play(); }
+    public void Shot()
+    {
+        gunShot.audioSource.Play();
+        OnCameraShake.Invoke(player.GetGunOnFiredShakeAmt());
+    }
 
     public void Reload(int index)
-    { 
+    {
         if (index < reloadSounds.Length && index >= 0)
+        {
             reloadSounds[index].audioSource.Play();
+            OnCameraShake.Invoke(player.GetGunOnReloadShakeAmt(index));
+        }
     }
 
     IEnumerator MuzzleFlash()

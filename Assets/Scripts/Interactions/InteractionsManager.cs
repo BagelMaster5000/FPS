@@ -4,16 +4,24 @@ using UnityEngine;
 [RequireComponent(typeof(FPSGeneral))]
 public class InteractionsManager : MonoBehaviour
 {
+    [Header("Events")]
+    public VoidEvent OnGunPurchased;
+    public VoidEvent OnGunCouldNotPurchase;
+    
+    [Header("General")]
     [SerializeField] TextMeshProUGUI interactionsText;
     FPSGeneral player;
+    [SerializeField] PlayerScore playerScore;
     Transform playerCamTransform;
     InputMaster inputs;
 
     [Range(1, 25)]
     [SerializeField] float interactionDistance = 5;
     FPSGeneral.GunType wallGunLookingAt;
-    float price;
+    int price;
     bool newInfo;
+
+    Vector3 rayDirection; // Instance variable so that it isn't created again every iteration of the update loop
 
     void Awake()
     {
@@ -27,12 +35,10 @@ public class InteractionsManager : MonoBehaviour
     private void OnEnable() { inputs.Game.Interact.Enable(); }    
     private void OnDisable() { inputs.Game.Interact.Disable(); }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector3 rayDirection = playerCamTransform.forward;
-        RaycastHit hit;
-        if (Physics.Raycast(playerCamTransform.position, rayDirection, out hit, interactionDistance))
+        rayDirection = playerCamTransform.forward;
+        if (Physics.Raycast(playerCamTransform.position, rayDirection, out RaycastHit hit, interactionDistance))
         {
             if (hit.collider.CompareTag("WallGun"))
                 HitWallGun(hit);
@@ -64,6 +70,16 @@ public class InteractionsManager : MonoBehaviour
     void Interact()
     {
         if (wallGunLookingAt != FPSGeneral.GunType.NONE)
-            player.PurchaseGun(wallGunLookingAt, price);
+        {
+            if (playerScore.GetCurrentScore() >= price)
+            {
+                player.PurchaseGun(wallGunLookingAt, price);
+                OnGunPurchased?.Invoke();
+            }
+            else
+            {
+                OnGunCouldNotPurchase?.Invoke();
+            }
+        }
     }
 }

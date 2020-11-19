@@ -42,9 +42,9 @@ public class POVCameraDetachedLook : MonoBehaviour
     {
         if (PauseMenu.gamePaused) return;
 
-        curLeftRightRotation += camRotation.ReadValue<Vector2>().x * curLookSensitivity * Time.deltaTime;
+        curLeftRightRotation += camRotation.ReadValue<Vector2>().x * curLookSensitivity * Time.fixedDeltaTime;
 
-        curUpDownRotation -= camRotation.ReadValue<Vector2>().y * curLookSensitivity * Time.deltaTime;
+        curUpDownRotation -= camRotation.ReadValue<Vector2>().y * curLookSensitivity * Time.fixedDeltaTime;
         curUpDownRotation = Mathf.Clamp(curUpDownRotation, -90f, 90f);
     }
 

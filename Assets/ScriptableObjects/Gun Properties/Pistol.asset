@@ -21,3 +21,7 @@ MonoBehaviour:
   damage: 40
   reloadLength: 2
   scopeAmount: 20
+  onFiredShakeAmt: 0.5
+  onReloadShakeAmts:
+  - 0
+  - 0.2

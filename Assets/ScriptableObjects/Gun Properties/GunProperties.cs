@@ -4,7 +4,7 @@
 public class GunProperties : ScriptableObject
 {
     public FPSGeneral.GunType gunType;
-    public float gunPrice;
+    public int gunPrice;
     public int ammoMagazineSize;
     public int ammoStarting;
     public int ammoMax;
@@ -12,4 +12,8 @@ public class GunProperties : ScriptableObject
     public float damage;
     public float reloadLength;
     public float scopeAmount;
+
+    [Space(10)]
+    public float onFiredShakeAmt;
+    public float[] onReloadShakeAmts;
 }

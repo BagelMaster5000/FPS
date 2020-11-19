@@ -11,11 +11,13 @@ public class GunCatchup : MonoBehaviour
     float velocityUpDown = 0;
     float velocityLeftRight = 0;
 
+    Quaternion curCatchupLoc;
+
     private void Update()
     {
         if (PauseMenu.gamePaused) return;
 
-        curDampValue = Mathf.Pow(0.06f, 1 / Time.deltaTime / 60);
+        curDampValue = 0.06f; // Mathf.Pow(0.06f, 1 / Time.unscaledDeltaTime / 60);
     }
 
     private void LateUpdate()
@@ -23,7 +25,12 @@ public class GunCatchup : MonoBehaviour
         if (PauseMenu.gamePaused) return;
 
         transform.position = positionTarget.position;
-        transform.rotation = Quaternion.Euler(
+        transform.rotation = Quaternion.Slerp(transform.rotation, curCatchupLoc, 0.2f);
+    }
+
+    private void FixedUpdate()
+    {
+        curCatchupLoc = Quaternion.Euler(
             Vector3.right * Mathf.SmoothDampAngle(
                 rotationUpDownTarget.eulerAngles.x,
                 transform.rotation.eulerAngles.x,

@@ -5,45 +5,44 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerMovement))]
 public class FPSGeneral : MonoBehaviour
 {
-    // States
     public enum GunState { IDLE, RELOADING, SCOPING, SWAPPING};
     [HideInInspector] public GunState curGunState;
     public enum MoveState { IDLE, MOVING, SPRINTING, JUMPING };
     [HideInInspector] public MoveState curMoveState;
 
-    // General
     [Header("General")]
     [SerializeField] Camera playerCam;
     InputMaster inputs;
     PlayerMovement playerMovement;
 
-    // Movement
-    float baseSpeed;
-    bool sprintButtonDown;
+    [Header("Movement")]
     [SerializeField] float speedMultiplierSprint = 1.4f;
     [SerializeField] float speedMultiplierScope = 0.5f;
     [SerializeField] float speedMultiplierReload = 0.5f;
+    float baseSpeed;
+    bool sprintButtonDown;
 
-    // FOV
+    [Header("FOV")]
     [SerializeField] float fovSprint = 75;
     [SerializeField] float fovStandard = 60;
     [SerializeField] float fovLerpFactor = 10;
 
-    // Health
-    float health = 100;
+    [Header("Health")]
     [SerializeField] float healthRegenDelay = 4;
+    float health = 100;
     float healthRegenDelayer;
     [SerializeField] float healthRegenPerSecond = 15;
     public FloatEvent OnDamageTaken; // float is current health 0-100
     public FloatEvent OnHealthRegenerated; // float is current health 0-100
     public VoidEvent OnDead;
 
-    // Guns
     [Header("Guns: Pistol, Shotgun")]
     [SerializeField] Gun[] allGuns;
     public BoolEvent OnGunHitTarget; // True when killing blow
     public StringEvent OnCurrentAmmoChanged; // string amount of ammo in magazine
     public StringEvent OnTotalAmmoChanged; // string amount of total ammo
+    [Range(0, 1)]
+    [SerializeField] float autoReloadDelay = 0.4f;
     public event Action OnGunFired;
     public event Action OnGotNewGun;
     public event Action OnReloadStarted;
@@ -65,15 +64,17 @@ public class FPSGeneral : MonoBehaviour
     public VoidEvent OnSwappingStarted;
     public VoidEvent OnSwappingEnded;
 
-    // Purchasing
+    //[Header("Feedback")]
+    //[SerializeField] CameraShaker camShaker;
+
     [Header("Purchasing")]
-    public FloatEvent OnPurchase;
+    public IntEvent OnPurchase;
 
     #region Setup
     private void Awake()
     {
         inputs = new InputMaster();
-        inputs.Game.Reload.performed += ctx => StartCoroutine(Reload());
+        inputs.Game.Reload.performed += ctx => ReloadStartIfValid();
         inputs.Game.Fire.started += ctx => Fire();
         inputs.Game.Sprinting.started += ctx => SprintStart();
         inputs.Game.Scope.started += ctx => StartScope();
@@ -305,8 +306,7 @@ public class FPSGeneral : MonoBehaviour
             OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
 
             Vector3 rayDirection = playerCam.transform.forward;
-            RaycastHit hit;
-            if (Physics.Raycast(playerCam.transform.position, rayDirection, out hit, 999))
+            if (Physics.Raycast(playerCam.transform.position, rayDirection, out RaycastHit hit, 999))
             {
                 if (hit.collider.CompareTag("Enemy"))
                 {
@@ -317,25 +317,30 @@ public class FPSGeneral : MonoBehaviour
                 }
             }
             if (heldGunSlots[curGunSlot].ammoInMag == 0)
-                StartCoroutine(Reload());
+                ReloadStartIfValid(autoReloadDelay);
         }
     }
 
-    // Waits until reload is finished before allowing other actions
-    IEnumerator Reload()
+    void ReloadStartIfValid(float delay = 0)
     {
-        if (PauseMenu.gamePaused || !HoldingGun() || curGunState == GunState.RELOADING || swapping ||
-            heldGunSlots[curGunSlot].ammoInMag >= allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize)
-            yield break;
+        if (!PauseMenu.gamePaused && HoldingGun() && curGunState != GunState.RELOADING && !swapping && 
+            heldGunSlots[curGunSlot].ammoInMag < allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize &&
+            !(heldGunSlots[curGunSlot].ammoInMag == 0 && heldGunSlots[curGunSlot].ammoTotal == 0))
+            StartCoroutine(Reload(delay));
+    }
+
+    // Reload must be finished before other actions are allowed
+    IEnumerator Reload(float delay)
+    {
+        if (delay > 0)
+            yield return new WaitForSeconds(delay);
 
         curGunState = GunState.RELOADING;
         curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
 
-        // Starting reload animation
         OnReloadStarted.Invoke();
-        yield return new WaitForSecondsRealtime(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.reloadLength);
+        yield return new WaitForSeconds(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.reloadLength);
 
-        // Reload executes
         int ammoAdding =
             Mathf.Clamp(
                 allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize - heldGunSlots[curGunSlot].ammoInMag,
@@ -351,7 +356,7 @@ public class FPSGeneral : MonoBehaviour
     bool HoldingGun() { return heldGunSlots[curGunSlot].gunType != GunType.NONE; }
     #endregion
     #region Purchasing
-    public void PurchaseGun(GunType gunType, float price) { AddGun(gunType); OnPurchase.Invoke(price); }
+    public void PurchaseGun(GunType gunType, int price) { AddGun(gunType); OnPurchase.Invoke(price); }
     #endregion
     #region Health
     public void TakeDamage(float damageAmt)
@@ -388,5 +393,12 @@ public class FPSGeneral : MonoBehaviour
             return null;
     }
     public Camera GetPlayerCamera() { return playerCam; }
+    public float GetGunOnFiredShakeAmt() { return allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.onFiredShakeAmt; }
+    public float GetGunOnReloadShakeAmt(int indexOfReloadShakeAmt)
+    {
+        if (indexOfReloadShakeAmt < allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.onReloadShakeAmts.Length)
+            return allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.onReloadShakeAmts[indexOfReloadShakeAmt];
+        return 0;
+    }
     #endregion
 }
