@@ -25,7 +25,7 @@ public class FPSGeneral : MonoBehaviour
     [Header("FOV")]
     [SerializeField] float fovSprint = 75;
     [SerializeField] float fovStandard = 60;
-    [SerializeField] float fovLerpFactor = 10;
+    [SerializeField] float fovLerpFactor = 5;
 
     [Header("Health")]
     [SerializeField] float healthRegenDelay = 4;
@@ -39,13 +39,14 @@ public class FPSGeneral : MonoBehaviour
     [Header("Guns: Pistol, Shotgun")]
     [SerializeField] Gun[] allGuns;
     public BoolEvent OnGunHitTarget; // True when killing blow
-    public StringEvent OnCurrentAmmoChanged; // string amount of ammo in magazine
-    public StringEvent OnTotalAmmoChanged; // string amount of total ammo
+    public IntEvent OnCurrentAmmoChanged;
+    public IntEvent OnTotalAmmoChanged;
     [Range(0, 1)]
     [SerializeField] float autoReloadDelay = 0.4f;
     public event Action OnGunFired;
     public event Action OnGotNewGun;
     public event Action OnReloadStarted;
+    float timeWhenReloadValid;
     public enum GunType { NONE = -1, PISTOL = 0, SHOTGUN = 1 };
     public struct HeldGunSlot
     {
@@ -63,9 +64,6 @@ public class FPSGeneral : MonoBehaviour
     const float SWAP_TOTAL_DURATION = 0.75f;
     public VoidEvent OnSwappingStarted;
     public VoidEvent OnSwappingEnded;
-
-    //[Header("Feedback")]
-    //[SerializeField] CameraShaker camShaker;
 
     [Header("Purchasing")]
     public IntEvent OnPurchase;
@@ -225,8 +223,8 @@ public class FPSGeneral : MonoBehaviour
         heldGunSlots[slot].gunType = gunToSwapIn;
         heldGunSlots[slot].ammoInMag = allGuns[(int)gunToSwapIn].gunProperties.ammoMagazineSize;
         heldGunSlots[slot].ammoTotal = allGuns[(int)gunToSwapIn].gunProperties.ammoStarting;
-        OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag.ToString());
-        OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal.ToString());
+        OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag);
+        OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal);
 
         RefreshGunVisibility();
         yield return new WaitForSeconds(SWAP_TOTAL_DURATION - SWAP_MOMENT);
@@ -259,8 +257,8 @@ public class FPSGeneral : MonoBehaviour
         swapping = true;
         yield return new WaitForSeconds(SWAP_MOMENT);
         curGunSlot = slot;
-        OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag.ToString());
-        OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal.ToString());
+        OnCurrentAmmoChanged.Invoke(heldGunSlots[slot].ammoInMag);
+        OnTotalAmmoChanged.Invoke(heldGunSlots[slot].ammoTotal);
         RefreshGunVisibility();
         yield return new WaitForSeconds(SWAP_TOTAL_DURATION - SWAP_MOMENT);
         curGunState = GunState.IDLE;
@@ -303,7 +301,7 @@ public class FPSGeneral : MonoBehaviour
         {
             OnGunFired.Invoke();
             heldGunSlots[curGunSlot].ammoInMag--;
-            OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
+            OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag);
 
             Vector3 rayDirection = playerCam.transform.forward;
             if (Physics.Raycast(playerCam.transform.position, rayDirection, out RaycastHit hit, 999))
@@ -323,17 +321,27 @@ public class FPSGeneral : MonoBehaviour
 
     void ReloadStartIfValid(float delay = 0)
     {
-        if (!PauseMenu.gamePaused && HoldingGun() && curGunState != GunState.RELOADING && !swapping && 
-            heldGunSlots[curGunSlot].ammoInMag < allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize &&
-            !(heldGunSlots[curGunSlot].ammoInMag == 0 && heldGunSlots[curGunSlot].ammoTotal == 0))
+        if (ReloadValid())
             StartCoroutine(Reload(delay));
+    }
+
+    bool ReloadValid()
+    {
+        return !PauseMenu.gamePaused &&
+            HoldingGun() && curGunState != GunState.RELOADING && !swapping &&
+            heldGunSlots[curGunSlot].ammoInMag < allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.ammoMagazineSize &&
+            !(heldGunSlots[curGunSlot].ammoInMag == 0 && heldGunSlots[curGunSlot].ammoTotal == 0) &&
+            Time.time > timeWhenReloadValid;
     }
 
     // Reload must be finished before other actions are allowed
     IEnumerator Reload(float delay)
     {
         if (delay > 0)
+        {
+            timeWhenReloadValid = Time.time + delay;
             yield return new WaitForSeconds(delay);
+        }
 
         curGunState = GunState.RELOADING;
         curMoveState = (curMoveState == MoveState.SPRINTING) ? MoveState.MOVING : curMoveState;
@@ -348,8 +356,8 @@ public class FPSGeneral : MonoBehaviour
                 heldGunSlots[curGunSlot].ammoTotal);
         heldGunSlots[curGunSlot].ammoInMag += ammoAdding;
         heldGunSlots[curGunSlot].ammoTotal -= ammoAdding;
-        OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag.ToString());
-        OnTotalAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoTotal.ToString());
+        OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag);
+        OnTotalAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoTotal);
         curGunState = GunState.IDLE;
     }
 
