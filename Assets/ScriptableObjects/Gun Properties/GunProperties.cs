@@ -13,6 +13,7 @@ public class GunProperties : ScriptableObject
     public float reloadLength;
     public float scopeAmount;
     public float spreadAmount;
+    public float recoilAmt;
 
     [Space(10)]
     public float onFiredShakeAmt;

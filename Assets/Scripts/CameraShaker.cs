@@ -24,5 +24,5 @@ public class CameraShaker : MonoBehaviour
         }
     }
 
-    public void ShakeCamera(float setShakeAmt) { shakeAmt = setShakeAmt; }
+    public void Shake(float setShakeAmt) { shakeAmt = setShakeAmt; }
 }

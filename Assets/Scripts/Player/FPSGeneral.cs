@@ -12,6 +12,7 @@ public class FPSGeneral : MonoBehaviour
 
     [Header("General")]
     [SerializeField] Camera playerCam;
+    [SerializeField] CameraRecoiler playerCamRecoiler;
     InputMaster inputs;
     PlayerMovement playerMovement;
 
@@ -300,6 +301,8 @@ public class FPSGeneral : MonoBehaviour
         if (curGunState != GunState.RELOADING && !swapping && curMoveState != MoveState.SPRINTING)
         {
             OnGunFired.Invoke();
+            playerCamRecoiler.Recoil(GetCurGunProperties().recoilAmt);
+
             heldGunSlots[curGunSlot].ammoInMag--;
             OnCurrentAmmoChanged.Invoke(heldGunSlots[curGunSlot].ammoInMag);
 
@@ -311,7 +314,7 @@ public class FPSGeneral : MonoBehaviour
                     // Enemy is knocked-back when hit
                     hit.collider.attachedRigidbody.AddForce(rayDirection * 8, ForceMode.Impulse);
                     // Enemy takes damage and hitmarker appears. Hitmarker displays either white or red depending on if enemy was killed.
-                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.damage));
+                    OnGunHitTarget.Invoke(hit.collider.GetComponent<EnemyGeneral>().TakeDamage(GetCurGunProperties().damage));
                 }
             }
             if (heldGunSlots[curGunSlot].ammoInMag == 0)
@@ -321,11 +324,11 @@ public class FPSGeneral : MonoBehaviour
 
     void ReloadStartIfValid(float delay = 0)
     {
-        if (ReloadValid())
+        if (IsReloadValid())
             StartCoroutine(Reload(delay));
     }
 
-    bool ReloadValid()
+    bool IsReloadValid()
     {
         return !PauseMenu.gamePaused &&
             HoldingGun() && curGunState != GunState.RELOADING && !swapping &&
@@ -408,5 +411,10 @@ public class FPSGeneral : MonoBehaviour
             return allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties.onReloadShakeAmts[indexOfReloadShakeAmt];
         return 0;
     }
+    GunProperties GetCurGunProperties()
+    {
+        return allGuns[(int)heldGunSlots[curGunSlot].gunType].gunProperties;
+    }
+
     #endregion
 }

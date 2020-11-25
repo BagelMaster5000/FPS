@@ -33,10 +33,10 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         inputs = new InputMaster();
-        inputs.Game.Moving.performed += ctx => SpeedRefresh(ctx.ReadValue<Vector2>());
+        inputs.Game.Moving.performed += ctx => MoveDirectionRefresh(ctx.ReadValue<Vector2>());
         inputs.Game.Moving.performed += ctx => moving = true;
         inputs.Game.Moving.performed += ctx => OnStartedMoving?.Invoke();
-        inputs.Game.Moving.canceled += ctx => SpeedRefresh(Vector2.zero);
+        inputs.Game.Moving.canceled += ctx => MoveDirectionRefresh(Vector2.zero);
         inputs.Game.Moving.canceled += ctx => moving = false;
         inputs.Game.Moving.canceled += ctx => OnStoppedMoving?.Invoke();
         inputs.Game.Jump.performed += ctx => Jump();
@@ -71,11 +71,10 @@ public class PlayerMovement : MonoBehaviour
     #region Directional Movement
     /* Updates players current movement direction with input values.
      * Called with Vector2.zero when player stops moving.
-     * @param direcion to set player's movement direction to
      */
-    private void SpeedRefresh(Vector2 moveDirection)
+    private void MoveDirectionRefresh(Vector2 setMoveDirection)
     {
-        this.curMoveDirection = moveDirection;
+        this.curMoveDirection = setMoveDirection;
         this.curMoveDirection.Normalize();
         movingBackwards = this.curMoveDirection.y < 0;
     }

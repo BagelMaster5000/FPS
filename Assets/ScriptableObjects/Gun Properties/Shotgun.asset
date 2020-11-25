@@ -21,6 +21,8 @@ MonoBehaviour:
   damage: 100
   reloadLength: 0.8
   scopeAmount: 5
+  spreadAmount: 0
+  recoilAmt: 6
   onFiredShakeAmt: 2
   onReloadShakeAmts:
   - 0.5
