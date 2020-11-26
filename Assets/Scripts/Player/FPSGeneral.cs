@@ -24,7 +24,7 @@ public class FPSGeneral : MonoBehaviour
     bool sprintButtonDown;
 
     [Header("FOV")]
-    [SerializeField] float fovSprint = 75;
+    [SerializeField] float fovSprintDelta = 15;
     [SerializeField] float fovStandard = 60;
     [SerializeField] float fovLerpFactor = 5;
 
@@ -155,7 +155,7 @@ public class FPSGeneral : MonoBehaviour
             if (curMoveState == MoveState.SPRINTING)
             {
                 playerMovement.SetSpeed(baseSpeed * speedMultiplierSprint);
-                playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, fovSprint, 1 / fovLerpFactor);
+                playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, fovStandard + fovSprintDelta, 1 / fovLerpFactor);
             }
             else if (curGunState == GunState.SCOPING && heldGunSlots[curGunSlot].gunType != GunType.NONE)
             {
