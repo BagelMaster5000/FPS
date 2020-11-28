@@ -16,6 +16,9 @@ public class POVCameraDetachedLook : MonoBehaviour
     [SerializeField] float baseLookSensitivity = 25;
     float curLookSensitivity;
     [SerializeField] float camMoveLerpFactor = 2;
+    bool focused;
+    [Range(0.01f, 1)]
+    [SerializeField] float focusedSensitivityMultiplier = 0.5f;
 
     float curUpDownRotation = 0.0f;
     float curLeftRightRotation = 0.0f;
@@ -35,12 +38,15 @@ public class POVCameraDetachedLook : MonoBehaviour
     {
         posOffset = transform.position - playerBody.position;
         curLookSensitivity = baseLookSensitivity;
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = 60; // FIXME Need this in debug object or elsewhere
     }
 
     private void Update()
     {
         if (PauseMenu.gamePaused) return;
+
+        curLookSensitivity = (focused) ? baseLookSensitivity * focusedSensitivityMultiplier : baseLookSensitivity;
+
 
         curLeftRightRotation += camRotation.ReadValue<Vector2>().x * curLookSensitivity * Time.fixedDeltaTime;
 
@@ -61,7 +67,7 @@ public class POVCameraDetachedLook : MonoBehaviour
     }
 
     #region Mutators and Accessors
-    public void SetCurLookSensitivity(float newSensitivity) { curLookSensitivity = newSensitivity; }
+    public void SetFocused(bool setFocused) => focused = setFocused;
 
     public float GetBaseLookSensitivity() { return baseLookSensitivity; }
     #endregion

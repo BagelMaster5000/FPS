@@ -7,18 +7,11 @@ public class GunCatchup : MonoBehaviour
     [SerializeField] private Transform positionTarget;
     [SerializeField] private Transform rotationLeftRightTarget;
     [SerializeField] private Transform rotationUpDownTarget;
-    float curDampValue;
+    float curDampValue = 0.5f;
     float velocityUpDown = 0;
     float velocityLeftRight = 0;
 
     Quaternion curCatchupLoc;
-
-    private void Update()
-    {
-        if (PauseMenu.gamePaused) return;
-
-        curDampValue = 0.06f; // Mathf.Pow(0.06f, 1 / Time.unscaledDeltaTime / 60);
-    }
 
     private void LateUpdate()
     {

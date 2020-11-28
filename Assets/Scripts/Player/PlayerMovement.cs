@@ -47,7 +47,11 @@ public class PlayerMovement : MonoBehaviour
     private void OnDisable() { inputs.Game.Moving.Disable(); inputs.Game.Jump.Disable(); }
     #endregion
 
-    private void Start() { StartCoroutine(MovementAndGroundedLoop()); }
+    private void Start()
+    {
+        StartCoroutine(MovementLoop());
+        StartCoroutine(GroundedLoop());
+    }
 
     #region Jumping
     private void Jump()
@@ -56,6 +60,16 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.velocity += Vector3.up * Mathf.Sqrt(2 * Physics.gravity.magnitude * jumpHeight);
             OnJumped?.Invoke();
+        }
+    }
+
+    IEnumerator GroundedLoop()
+    {
+        bool prevGrounded = false;
+        while (true)
+        {
+            GroundedRefresh(ref prevGrounded);
+            yield return new WaitForFixedUpdate();
         }
     }
 
@@ -79,15 +93,11 @@ public class PlayerMovement : MonoBehaviour
         movingBackwards = this.curMoveDirection.y < 0;
     }
 
-    IEnumerator MovementAndGroundedLoop()
+    IEnumerator MovementLoop()
     {
-        bool prevGrounded = false;
         while (true)
         {
-            GroundedRefresh(ref prevGrounded);
-
             Move();
-
             yield return new WaitForFixedUpdate();
         }
     }

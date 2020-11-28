@@ -49,6 +49,8 @@ public class FPSGeneral : MonoBehaviour
     public event Action OnReloadStarted;
     float timeWhenReloadValid;
     public enum GunType { NONE = -1, PISTOL = 0, SHOTGUN = 1 };
+    public VoidEvent OnScopeIn;
+    public VoidEvent OnScopeOut;
     public struct HeldGunSlot
     {
         public GunType gunType;
@@ -280,12 +282,19 @@ public class FPSGeneral : MonoBehaviour
         if (HoldingGun() && curGunState == GunState.IDLE)
         {
             curGunState = GunState.SCOPING;
+            OnScopeIn.Invoke();
             curMoveState = (curMoveState == MoveState.SPRINTING && curMoveState != MoveState.JUMPING) ? MoveState.MOVING : curMoveState;
         }
     }
 
-    void EndScope() { curGunState = (curGunState == GunState.SCOPING) ?
-            GunState.IDLE : curGunState; }
+    void EndScope()
+    {
+        if (curGunState == GunState.SCOPING)
+        {
+            curGunState = GunState.IDLE;
+            OnScopeOut.Invoke();
+        }
+    }
 
     void Fire()
     {
